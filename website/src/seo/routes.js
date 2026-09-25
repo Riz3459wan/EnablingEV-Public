@@ -4,7 +4,9 @@
 // Plain ESM with no imports from React/Vite so Node can load it at build time.
 
 export const DEFAULT_SITE_URL = "https://enablingev.com";
+
 export const OG_IMAGE = "/og-image.png";
+
 export const OG_IMAGE_ALT =
   "EnablingEV — electric rickshaws and cargo vehicles by Enabling E-Vehicle Pvt. Ltd.";
 
@@ -18,6 +20,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "weekly",
     priority: "1.0",
   },
+
   {
     path: "/about",
     title: "About Us | Enabling E-Vehicle Pvt. Ltd.",
@@ -26,6 +29,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "monthly",
     priority: "0.8",
   },
+
   {
     path: "/mission",
     title: "Our Mission | Enabling E-Vehicle Pvt. Ltd.",
@@ -34,6 +38,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "monthly",
     priority: "0.6",
   },
+
   {
     path: "/product",
     title: "Electric Rickshaw & Cargo Loader Models | EnablingEV",
@@ -42,6 +47,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "monthly",
     priority: "0.9",
   },
+
   {
     path: "/gallery",
     title: "Gallery | Enabling E-Vehicle Pvt. Ltd.",
@@ -50,6 +56,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "monthly",
     priority: "0.5",
   },
+
   {
     path: "/contact",
     title: "Contact Us | Enabling E-Vehicle Pvt. Ltd.",
@@ -58,6 +65,7 @@ export const PUBLIC_ROUTES = [
     changefreq: "yearly",
     priority: "0.7",
   },
+
   {
     path: "/DealerForm",
     title: "Become a Dealer | Enabling E-Vehicle Pvt. Ltd.",
@@ -68,8 +76,9 @@ export const PUBLIC_ROUTES = [
   },
 ];
 
-// Working pages (logins, dashboards, forms). Static HTML is still generated
-// for them so they get the right <title>, but they are marked noindex.
+// Working pages (logins, dashboards, forms).
+// Static HTML is still generated for them so they get the right <title>,
+// but they are marked noindex.
 export const PRIVATE_PATHS = [
   "/customerForm",
   "/dealerStatus",
@@ -83,6 +92,10 @@ export const PRIVATE_PATHS = [
   "/createQuotation",
   "/dealerCustomerInfo",
   "/displayCustomerInfo",
+
+  // Sub-admin only
+  "/allCustomers",
+
   "/displayVehicleInfo",
   "/VehicleInfo",
   "/vehicleStatus",
@@ -103,6 +116,10 @@ const PRIVATE_TITLES = {
   "/createQuotation": "Quotations",
   "/dealerCustomerInfo": "My Customers",
   "/displayCustomerInfo": "Customer Info",
+
+  // Sub-admin only
+  "/allCustomers": "All Customers",
+
   "/displayVehicleInfo": "Vehicle Info",
   "/VehicleInfo": "Add Vehicle",
   "/vehicleStatus": "Vehicle Status",
@@ -111,6 +128,7 @@ const PRIVATE_TITLES = {
 };
 
 export const SITE_TITLE_SUFFIX = "EnablingEV";
+
 const PRIVATE_DESCRIPTION =
   "Enabling E-Vehicle Pvt. Ltd. portal for dealers and sub admins.";
 
@@ -122,7 +140,11 @@ export const NOT_FOUND_ROUTE = {
 };
 
 export const ROUTES = [
-  ...PUBLIC_ROUTES.map((r) => ({ ...r, noindex: false })),
+  ...PUBLIC_ROUTES.map((r) => ({
+    ...r,
+    noindex: false,
+  })),
+
   ...PRIVATE_PATHS.map((path) => ({
     path,
     title: `${PRIVATE_TITLES[path]} | ${SITE_TITLE_SUFFIX}`,
@@ -131,8 +153,11 @@ export const ROUTES = [
   })),
 ];
 
-// React Router matches case-insensitively and ignores a trailing slash, so do the same.
+// React Router matches case-insensitively and ignores a trailing slash,
+// so do the same.
 const norm = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p).toLowerCase();
+
 const BY_PATH = new Map(ROUTES.map((r) => [norm(r.path), r]));
 
-export const routeFor = (pathname) => BY_PATH.get(norm(pathname)) ?? NOT_FOUND_ROUTE;
+export const routeFor = (pathname) =>
+  BY_PATH.get(norm(pathname)) ?? NOT_FOUND_ROUTE;
