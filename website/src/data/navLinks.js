@@ -1,16 +1,21 @@
 // Public marketing site links (shown to logged-out visitors)
+// Structure mirrors Range Rover: no "Home" (logo acts as home), no "Mission"
+// (old-school marketing term — replaced by editorial About/Gallery pages).
 export const publicLinks = [
-  { label: "Home", to: "/" },
+  { label: "Models", to: "/product" },
   { label: "About", to: "/about" },
-  { label: "Vehicles", to: "/product" },
-  { label: "Mission", to: "/mission" },
   { label: "Gallery", to: "/gallery" },
   { label: "Contact", to: "/contact" },
 ];
 
-// Portal links, one set per role (shown after login instead of the public links).
-// Keep every `to` here in sync with the `allow` list of its route in AppRoutes.jsx,
-// otherwise the link will bounce the user back to the login page.
+// Top utility bar — small links (Range Rover's "VEHICLES / OWNERS / EXPLORE / SHOP NOW")
+export const utilityLinks = [
+  { label: "Vehicles", to: "/product" },
+  { label: "Dealers", to: "/DealerForm" },
+  { label: "Support", to: "/contact" },
+  { label: "Shop Now", to: "/product" },
+];
+
 export const roleLinks = {
   subadmin: [
     { label: "Dashboard", to: "/subAdminDash" },
@@ -26,7 +31,7 @@ export const roleLinks = {
     { label: "My Customers", to: "/dealerCustomerInfo" },
     { label: "Vehicles", to: "/displayVehicleInfo" },
     { label: "Quotation", to: "/createQuotation" },
-    { label: "Download Certificate", to: "/document" },
+    { label: "Certificate", to: "/document" },
   ],
 };
 

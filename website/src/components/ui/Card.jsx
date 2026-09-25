@@ -1,6 +1,6 @@
 export const Card = ({ className = "", children }) => (
   <div
-    className={`bg-card border border-border rounded-xl shadow-sm ${className}`}
+    className={`bg-white/[0.02] border border-white/[0.08] rounded-xl ${className}`}
   >
     {children}
   </div>

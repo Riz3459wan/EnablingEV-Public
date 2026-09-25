@@ -1,22 +1,17 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import api from "../../api/client";
 import useAsyncData from "../../hooks/useAsyncData";
 import { Input, Select } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import { ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
 import StatusBadge from "../../features/quotation/StatusBadge";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { MOCK_VEHICLES, MOCK_QUOTATIONS } from "../../data/mockData";
 
-// NEW page — additive only. Does not touch DisplayVehicleInfo.jsx, which
-// stays exactly as-is for Admin/Dealer/Sub-Admin (hardcoded to dispatched
-// vehicles). This is a separate, Sub-Admin-only view answering a different
-// question: "what's the current state of every registered vehicle?" —
-// derived entirely from data that already exists (/VehicleTable +
-// /QuotationTable), no backend changes.
-//   Not in any quotation yet -> "In Stock"
-//   In a quotation           -> that quotation's status (StatusBadge, same
-//                                component used in Create Quotation)
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
+
 const PAGE_SIZE = 25;
 const LOAD_ERROR = "Couldn't load vehicle status. Please try again.";
 
@@ -35,6 +30,26 @@ const VehicleStatus = () => {
   const [limit, setLimit] = useState(PAGE_SIZE);
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      const statusByChassis = new Map(
+        MOCK_QUOTATIONS.filter((q) => q.chassisNumber).map((q) => [
+          q.chassisNumber,
+          q.status || "Pending",
+        ]),
+      );
+      return MOCK_VEHICLES.map((v) => ({
+        ...v,
+        derivedStatus: statusByChassis.get(v.chassisNumber) || "In Stock",
+      }));
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     const [vehiclesRes, quotesRes] = await Promise.all([
       api.get("/VehicleTable"),
       api.get("/QuotationTable"),
@@ -98,7 +113,7 @@ const VehicleStatus = () => {
         label: "Status",
         render: (v) =>
           v.derivedStatus === "In Stock" ? (
-            <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground border border-line">
+            <span className="text-[10px] uppercase tracking-[0.14em] font-semibold px-2.5 py-1 rounded-full bg-white/[0.04] text-white/60 border border-white/10 font-rr">
               In Stock
             </span>
           ) : (
@@ -110,23 +125,16 @@ const VehicleStatus = () => {
   );
 
   return (
-    <section className="min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+    <DashboardLayout dealerName="Sub Admin">
       <div className="w-full max-w-7xl mx-auto">
-        <Link
-          to="/subAdminDash"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft size={15} /> Back to dashboard
-        </Link>
-
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-1 inline-block">
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
             Sub Admin
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
             Vehicle Status
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-2">
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
             Every registered vehicle's current stage — in stock, assigned to a
             quotation, or dispatched.
           </p>
@@ -142,7 +150,7 @@ const VehicleStatus = () => {
               <div className="relative w-full sm:max-w-sm">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
                 />
                 <Input
                   value={search}
@@ -170,7 +178,7 @@ const VehicleStatus = () => {
                   </option>
                 ))}
               </Select>
-              <p className="text-xs text-muted-foreground sm:ml-auto">
+              <p className="text-xs text-white/40 sm:ml-auto font-rr tracking-[0.02em]">
                 Showing {visible.length} of {filtered.length}
               </p>
             </div>
@@ -190,7 +198,7 @@ const VehicleStatus = () => {
               <div className="flex justify-center mt-5">
                 <button
                   onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                  className="text-sm text-accent hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
                   more
@@ -200,7 +208,7 @@ const VehicleStatus = () => {
           </>
         )}
       </div>
-    </section>
+    </DashboardLayout>
   );
 };
 

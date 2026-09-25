@@ -11,9 +11,7 @@ const ConfirmModal = ({
   onCancel,
 }) => (
   <Modal open={open} onClose={busy ? () => {} : onCancel} title={title}>
-    <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-      {message}
-    </p>
+    <p className="text-sm text-white/60 leading-relaxed mb-6">{message}</p>
     <div className="flex justify-end gap-3">
       <SecondaryButton onClick={onCancel} disabled={busy} className="text-sm">
         Cancel

@@ -4,27 +4,38 @@ import Modal from "../../components/ui/Modal";
 import { Input } from "../../components/ui/Field";
 import { PrimaryButton, SecondaryButton } from "../../components/ui/Button";
 import StatusBadge from "./StatusBadge";
-import { brandFor, CHASSIS_FIXED_MID, chassisPrefixFor, STATUS, vehicleTypeLabel } from "./constants";
-import { buildChassis, formatDateTime, formatINR, sanitizeChassisPart } from "./calc";
+import {
+  brandFor,
+  CHASSIS_FIXED_MID,
+  chassisPrefixFor,
+  STATUS,
+  vehicleTypeLabel,
+} from "./constants";
+import {
+  buildChassis,
+  formatDateTime,
+  formatINR,
+  sanitizeChassisPart,
+} from "./calc";
 
 const Row = ({ label, children, wide }) => (
   <div className={wide ? "sm:col-span-2" : ""}>
-    <dt className="inline text-placeholder">{label}: </dt>
+    <dt className="inline text-white/40">{label}: </dt>
     <dd className="inline text-white">{children ?? "—"}</dd>
   </div>
 );
 
 const Section = ({ title, children }) => (
   <div className="mb-6">
-    <h3 className="text-sm font-bold text-white mb-3">{title}</h3>
+    <h3 className="font-display uppercase text-sm tracking-[-0.01em] text-white mb-3">
+      {title}
+    </h3>
     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
       {children}
     </dl>
   </div>
 );
 
-// Sub-admin flow: a dealer submitted a quotation without a chassis number, the
-// sub-admin assigns one here and moves it to "Under Billing".
 const QuotationDetailsModal = ({
   quotation: q,
   canApprove,
@@ -54,7 +65,7 @@ const QuotationDetailsModal = ({
           ),
         );
       })
-      .catch(() => {}); // duplicate check is best-effort; the server enforces it too
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -77,8 +88,7 @@ const QuotationDetailsModal = ({
         chassisNumber: chassis,
         status: STATUS.BILLING,
       });
-      const updated =
-        res.data && typeof res.data === "object" ? res.data : {};
+      const updated = res.data && typeof res.data === "object" ? res.data : {};
       onApproved({
         ...q,
         chassisNumber: chassis,
@@ -93,7 +103,12 @@ const QuotationDetailsModal = ({
   };
 
   return (
-    <Modal open onClose={onClose} title="Quotation Details" maxWidth="max-w-3xl">
+    <Modal
+      open
+      onClose={onClose}
+      title="Quotation Details"
+      maxWidth="max-w-3xl"
+    >
       <Section title="Dealer Information">
         <Row label="Name">{q.dealerName}</Row>
         <Row label="GSTIN">{q.dealerGstin}</Row>
@@ -136,12 +151,12 @@ const QuotationDetailsModal = ({
       </Section>
 
       {needsApproval && (
-        <div className="mb-6 p-4 rounded-2xl border border-line bg-background/40">
-          <p className="text-sm font-semibold text-white mb-3">
+        <div className="mb-6 p-4 rounded-2xl border border-white/[0.08] bg-white/[0.02]">
+          <p className="text-sm font-semibold text-white mb-3 font-rr tracking-[0.02em]">
             Assign chassis number &amp; approve
           </p>
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="font-mono text-muted-foreground">
+            <span className="font-mono text-white/40">
               {chassisPrefixFor(q.vehicleType)}
             </span>
             <Input
@@ -155,7 +170,7 @@ const QuotationDetailsModal = ({
               aria-label="Chassis part 1"
               className="!w-20 text-center font-mono"
             />
-            <span className="font-mono text-muted-foreground">{CHASSIS_FIXED_MID}</span>
+            <span className="font-mono text-white/40">{CHASSIS_FIXED_MID}</span>
             <Input
               value={mid2}
               onChange={(e) => {
@@ -167,7 +182,11 @@ const QuotationDetailsModal = ({
               aria-label="Chassis part 2"
               className="!w-20 text-center font-mono"
             />
-            <PrimaryButton onClick={approve} disabled={saving} className="text-sm">
+            <PrimaryButton
+              onClick={approve}
+              disabled={saving}
+              className="text-sm"
+            >
               {saving ? "Saving..." : "Approve"}
             </PrimaryButton>
           </div>
@@ -175,14 +194,14 @@ const QuotationDetailsModal = ({
         </div>
       )}
 
-      <div className="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-line">
-        <div className="text-xs text-muted-foreground space-y-0.5">
+      <div className="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-white/[0.06]">
+        <div className="text-xs text-white/40 space-y-0.5 font-mono">
           <p>Created: {formatDateTime(q.createdAt)}</p>
           <p>Updated: {formatDateTime(q.updatedAt)}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Total Amount</p>
-          <p className="text-2xl font-extrabold text-white">
+          <p className="text-xs text-white/40">Total Amount</p>
+          <p className="text-2xl font-extrabold text-white font-rr tabular-nums">
             {formatINR(q.totalAmount)}
           </p>
         </div>

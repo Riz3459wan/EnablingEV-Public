@@ -4,7 +4,7 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { Phone, Mail, ArrowRight } from "lucide-react";
+import { Phone, Mail, ArrowRight, MapPin } from "lucide-react";
 import api from "../../api/client";
 import { OFFICES, PHONES, EMAIL } from "../../data/company";
 
@@ -104,21 +104,19 @@ const Contact = memo(() => {
 
   return (
     <div className="bg-ink text-white">
-      {/* Hero */}
+      {/* ─── Hero ─────────────────────────────────────────────── */}
       <section className="relative bg-ink border-b border-white/[0.06]">
         <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[500px] sm:w-[800px] h-[300px] sm:h-[400px] rounded-full bg-primary/[0.03] blur-[140px] sm:blur-[160px]" />
 
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pt-32 sm:pt-40 lg:pt-48 pb-14 sm:pb-20 lg:pb-28 text-center">
           <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
             <span className="h-px w-6 sm:w-8 bg-primary/60" />
-            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
-              Get In Touch
-            </span>
+            <span className="text-eyebrow text-white/50">Get In Touch</span>
             <span className="h-px w-6 sm:w-8 bg-primary/60" />
           </div>
 
           <h1
-            className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em] mb-6 sm:mb-8 max-w-4xl mx-auto text-balance"
+            className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em] mb-6 sm:mb-8 max-w-4xl mx-auto"
             style={{ animationDelay: "120ms" }}
           >
             Find Us.
@@ -136,7 +134,7 @@ const Contact = memo(() => {
         </div>
       </section>
 
-      {/* Offices + Map */}
+      {/* ─── Offices + Map ────────────────────────────────────── */}
       <section className="relative bg-ink border-b border-white/[0.06]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-14 sm:py-20 lg:py-28">
           <div className="grid lg:grid-cols-[1fr_1.5fr] gap-10 lg:gap-20 items-start">
@@ -144,9 +142,7 @@ const Contact = memo(() => {
             <div>
               <div className="animate-fade-up flex items-center gap-3 mb-8 sm:mb-10">
                 <span className="h-px w-6 sm:w-8 bg-primary/60" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
-                  Our Offices
-                </span>
+                <span className="text-eyebrow text-white/50">Our Offices</span>
               </div>
 
               <div className="space-y-6 sm:space-y-8">
@@ -156,10 +152,16 @@ const Contact = memo(() => {
                     className="animate-fade-up pb-6 sm:pb-8 border-b border-white/[0.06] last:border-b-0"
                     style={{ animationDelay: `${100 + i * 80}ms` }}
                   >
-                    <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-primary/70 mb-2 sm:mb-3">
-                      {office.label}
-                    </p>
-                    <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-sm">
+                    <div className="flex items-start gap-3 mb-2 sm:mb-3">
+                      <MapPin
+                        size={14}
+                        className="text-primary/70 shrink-0 mt-1"
+                      />
+                      <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-primary/70">
+                        {office.label}
+                      </p>
+                    </div>
+                    <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-sm pl-6">
                       {office.address}
                     </p>
                   </div>
@@ -233,14 +235,14 @@ const Contact = memo(() => {
         </div>
       </section>
 
-      {/* Form */}
+      {/* ─── Form ─────────────────────────────────────────────── */}
       <section className="relative bg-ink">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-14 sm:py-20 lg:py-28">
           <div className="grid lg:grid-cols-[1fr_1.5fr] gap-10 lg:gap-20 items-start">
             <div className="max-w-md">
               <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
                 <span className="h-px w-6 sm:w-8 bg-primary/60" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                <span className="text-eyebrow text-white/50">
                   Send A Message
                 </span>
               </div>
@@ -272,7 +274,7 @@ const Contact = memo(() => {
             >
               {status === "success" ? (
                 <div className="p-8 sm:p-10 lg:p-16 border border-white/[0.08] text-center">
-                  <p className="font-display text-xl sm:text-2xl uppercase text-white mb-4">
+                  <p className="font-display uppercase text-xl sm:text-2xl text-white mb-4">
                     Message Sent.
                   </p>
                   <p className="text-white/60 text-sm max-w-md mx-auto">
@@ -381,7 +383,7 @@ const Contact = memo(() => {
                     <button
                       type="submit"
                       disabled={status === "submitting"}
-                      className="group inline-flex items-center justify-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group inline-flex items-center justify-center gap-3 text-[12px] uppercase tracking-[0.16em] font-semibold text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-none w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {status === "submitting" ? "Sending..." : "Send Message"}
                       <ArrowRight

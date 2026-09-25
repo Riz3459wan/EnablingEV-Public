@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, MapPin, Phone, Mail } from "lucide-react";
-import BrandMark from "./ui/BrandMark";
+import Wordmark from "./ui/Wordmark";
 import { SocialIcon } from "./ui/SocialIcons";
 import { PHONES, EMAIL, OFFICES, SOCIALS } from "../data/company";
 
@@ -28,11 +28,8 @@ const Footer = memo(() => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 py-14 sm:py-16 lg:py-24 border-b border-white/[0.06]">
           {/* Left — Brand wordmark */}
           <div>
-            <div className="flex items-center gap-2.5 sm:gap-3 mb-4">
-              <BrandMark className="h-7 sm:h-9 w-auto" />
-              <span className="font-display text-2xl sm:text-3xl lg:text-4xl tracking-tight text-white">
-                Enabling<span className="text-primary">EV</span>
-              </span>
+            <div className="mb-5">
+              <Wordmark size="xl" />
             </div>
             <p className="text-white/55 text-sm sm:text-base leading-relaxed max-w-md">
               Practical electric vehicles for the people who keep India moving.

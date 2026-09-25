@@ -4,26 +4,26 @@ const DataTable = ({
   rowKey,
   emptyText = "No records found.",
 }) => (
-  <div className="overflow-x-auto rounded-xl border border-border bg-white">
+  <div className="overflow-x-auto rounded-xl border border-white/[0.08] bg-white/[0.02]">
     <table className="w-full text-sm text-left">
-      <thead className="bg-gray-50 text-muted-foreground text-xs uppercase tracking-wider">
+      <thead className="bg-white/[0.03] text-white/40 text-[10px] uppercase tracking-[0.18em]">
         <tr>
           {columns.map((col) => (
             <th
               key={col.key}
-              className={`px-4 py-3 font-semibold whitespace-nowrap ${col.className || ""}`}
+              className={`px-4 py-3 font-semibold whitespace-nowrap font-rr ${col.className || ""}`}
             >
               {col.label}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody className="divide-y divide-border">
+      <tbody className="divide-y divide-white/[0.04]">
         {rows.length === 0 ? (
           <tr>
             <td
               colSpan={columns.length}
-              className="px-4 py-10 text-center text-muted-foreground"
+              className="px-4 py-12 text-center text-white/40"
             >
               {emptyText}
             </td>
@@ -32,12 +32,12 @@ const DataTable = ({
           rows.map((row) => (
             <tr
               key={rowKey(row)}
-              className="hover:bg-gray-50 transition-colors"
+              className="hover:bg-white/[0.02] transition-colors"
             >
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className={`px-4 py-3 text-foreground align-top ${
+                  className={`px-4 py-3 text-white align-top text-xs sm:text-sm ${
                     col.wrap ? "min-w-[14rem]" : "whitespace-nowrap"
                   } ${col.className || ""}`}
                 >

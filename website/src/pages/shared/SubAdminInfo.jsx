@@ -1,25 +1,22 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Search, Trash2, Eye, EyeOff } from "lucide-react";
+import { Search, Trash2, Eye, EyeOff } from "lucide-react";
 import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
-import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
 import useAsyncData from "../../hooks/useAsyncData";
 import { Input } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmModal from "../../components/ui/ConfirmModal";
-import { Banner, ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
+import {
+  Banner,
+  ErrorCard,
+  LoadingCard,
+} from "../../components/ui/AsyncStates";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { MOCK_SUB_ADMINS } from "../../data/mockData";
 
-// Migrated from the old app's components/subAdminInfo/SubAdminInfo.jsx.
-// Neither AdminDash nor SubAdminDash ever passed the old component's
-// userId-scoped lookup (both mounted it with no props), so this always loads
-// the full list via GET /CreateProfile/all — no functionality lost.
-// AdminDash used the delete-enabled default; SubAdminDash passed
-// showDeleteButton=false/showLabel=false (read-only) — same split as
-// DealerInfo.jsx, driven by role here instead of props.
-// One deliberate change: the old table showed every password in plain text.
-// That's masked by default with a per-row reveal toggle — the data is still
-// there and still visible on demand, just not exposed by default on screen.
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
+
 const PAGE_SIZE = 25;
 const LOAD_ERROR = "Couldn't load sub-admins. Please try again.";
 
@@ -27,15 +24,15 @@ const PasswordCell = ({ value }) => {
   const [visible, setVisible] = useState(false);
   if (!value) return "—";
   return (
-    <span className="inline-flex items-center gap-2 font-mono">
-      {visible ? value : "•".repeat(Math.min(value.length, 10))}
+    <span className="inline-flex items-center gap-2 font-mono text-xs">
+      {visible ? value : "•".repeat(Math.min(value.length, 8))}
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        className="text-muted-foreground hover:text-white transition-colors"
+        className="text-white/40 hover:text-white transition-colors"
         aria-label={visible ? "Hide password" : "Show password"}
       >
-        {visible ? <EyeOff size={14} /> : <Eye size={14} />}
+        {visible ? <EyeOff size={13} /> : <Eye size={13} />}
       </button>
     </span>
   );
@@ -49,9 +46,20 @@ const SubAdminInfo = () => {
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [banner, setBanner] = useState(null); // { type, text }
+  const [banner, setBanner] = useState(null);
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      return MOCK_SUB_ADMINS;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     const res = await api.get("/CreateProfile/all");
     return Array.isArray(res.data) ? res.data : [];
   }, []);
@@ -93,7 +101,11 @@ const SubAdminInfo = () => {
     setDeleting(true);
     setBanner(null);
     try {
-      await api.delete(`/CreateProfile/${encodeURIComponent(deleteTarget.id)}`);
+      if (!USE_MOCK) {
+        await api.delete(
+          `/CreateProfile/${encodeURIComponent(deleteTarget.id)}`,
+        );
+      }
       setData((list) => list.filter((s) => s.id !== deleteTarget.id));
       setBanner({
         type: "success",
@@ -107,17 +119,19 @@ const SubAdminInfo = () => {
     }
   };
 
+  // ─── Reduced columns — combined Location, no address wrap ───
   const columns = useMemo(
     () => [
       { key: "fullName", label: "Full Name" },
+      { key: "userId", label: "User ID", className: "font-mono" },
       { key: "mobileNumber", label: "Mobile" },
       { key: "email", label: "Email" },
-      { key: "address", label: "Address", wrap: true },
-      { key: "city", label: "City" },
-      { key: "district", label: "District" },
-      { key: "pincode", label: "Pincode" },
-      { key: "state", label: "State" },
-      { key: "userId", label: "User ID", className: "font-mono" },
+      {
+        key: "location",
+        label: "Location",
+        render: (row) =>
+          [row.city, row.district, row.state].filter(Boolean).join(", ") || "—",
+      },
       {
         key: "password",
         label: "Password",
@@ -131,7 +145,7 @@ const SubAdminInfo = () => {
               render: (row) => (
                 <button
                   onClick={() => setDeleteTarget(row)}
-                  className="text-muted-foreground hover:text-red-400 transition-colors"
+                  className="text-white/40 hover:text-red-400 transition-colors"
                   aria-label={`Delete sub-admin ${row.fullName || row.userId}`}
                 >
                   <Trash2 size={16} />
@@ -145,23 +159,16 @@ const SubAdminInfo = () => {
   );
 
   return (
-    <section className="min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+    <DashboardLayout dealerName="Sub Admin">
       <div className="w-full max-w-7xl mx-auto">
-        <Link
-          to={ROLE_DASH[role] || "/"}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft size={15} /> Back to dashboard
-        </Link>
-
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-1 inline-block">
-            {ROLE_LABEL[role]}
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
+            Sub Admin
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
             Sub Admin Info
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-2">
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
             All sub-admin accounts on the platform.
           </p>
         </div>
@@ -178,7 +185,7 @@ const SubAdminInfo = () => {
               <div className="relative w-full sm:max-w-sm">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
                 />
                 <Input
                   value={search}
@@ -188,7 +195,7 @@ const SubAdminInfo = () => {
                   aria-label="Search sub-admins"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/40 font-rr tracking-[0.02em]">
                 Showing {visible.length} of {filtered.length}
                 {filtered.length !== data.length && ` (${data.length} total)`}
               </p>
@@ -209,7 +216,7 @@ const SubAdminInfo = () => {
               <div className="flex justify-center mt-5">
                 <button
                   onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                  className="text-sm text-accent hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
                   more
@@ -230,7 +237,7 @@ const SubAdminInfo = () => {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
-    </section>
+    </DashboardLayout>
   );
 };
 

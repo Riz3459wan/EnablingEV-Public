@@ -1,119 +1,97 @@
 import { memo } from "react";
 import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
-import BrandMark from "../ui/BrandMark";
+import Wordmark from "../ui/Wordmark";
+import heroImg from "../../assets/products/F2SS1.webp";
 
-// Split-screen auth layout — Range Rover / premium editorial treatment.
-// Left: brand panel with serif wordmark, role tagline, bullet list.
-// Right: clean form area with underline inputs (no card, no boxes).
-const AuthShell = memo(
-  ({ icon: Icon, roleLabel, title, subtitle, bullets = [], children }) => (
-    <div className="min-h-screen bg-ink text-white flex">
-      {/* ─── Left — Brand panel (desktop only) ─────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] relative flex-col justify-between p-12 xl:p-16 border-r border-white/[0.06] overflow-hidden">
-        {/* Subtle atmospheric glow */}
-        <div className="pointer-events-none absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-primary/[0.04] blur-[180px] -z-0" />
+/**
+ * Modern auth layout — VoltPulse-inspired, EnablingEV branded.
+ *
+ * Left:  Full-bleed dark EV image with cinematic overlay
+ * Right: Centered frosted dark glass card with glowing accents
+ *
+ * Layout:
+ *   - Fixed height (h-screen), no page scroll
+ *   - Mobile: image as top banner, form fills remaining viewport
+ *   - Desktop: card centered vertically
+ */
+const AuthShell = memo(({ roleLabel, title, subtitle, children }) => (
+  <div className="h-screen w-screen bg-ink text-white relative overflow-hidden flex flex-col">
+    {/* ─── Full-bleed background image ──────────────────────── */}
+    <div className="absolute inset-0 z-0">
+      <img
+        src={heroImg}
+        alt=""
+        aria-hidden="true"
+        className="w-full h-full object-cover brightness-[0.55] contrast-[1.05]"
+      />
+      {/* Dark overlays */}
+      <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/50 to-ink/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/40 to-ink/60" />
+    </div>
 
-        {/* Wordmark top */}
-        <Link
-          to="/"
-          className="relative z-10 flex items-center gap-3 text-white w-fit group"
-        >
-          <BrandMark className="h-9 w-auto transition-transform duration-500 group-hover:scale-105" />
-          <span className="font-display text-2xl tracking-tight text-white">
-            Enabling<span className="text-primary">EV</span>
-          </span>
-        </Link>
+    {/* ─── Top bar — wordmark left, back link right ──────── */}
+    <header className="relative z-20 flex items-center justify-between px-6 sm:px-10 lg:px-16 py-5 sm:py-6 shrink-0">
+      <Link
+        to="/"
+        className="flex items-center text-white hover:opacity-90 transition-opacity duration-300"
+      >
+        <Wordmark size="md" />
+      </Link>
 
-        {/* Center content — vertically centered */}
-        <div className="relative z-10 flex-1 flex items-center">
-          <div className="max-w-md">
-            {/* Role eyebrow */}
-            <div className="flex items-center gap-3 mb-10">
-              <span className="h-px w-8 bg-primary/60" />
-              <span className="text-eyebrow text-primary/80">{roleLabel}</span>
+      <Link
+        to="/"
+        className="hidden sm:inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-white/60 hover:text-white transition-colors duration-300"
+      >
+        ← Back to Home
+      </Link>
+    </header>
+
+    {/* ─── Main content — centered card ──────────────────── */}
+    <div className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-16 pb-6 overflow-y-auto">
+      <div className="w-full max-w-md my-auto">
+        {/* Card — frosted dark glass */}
+        <div className="relative bg-ink/70 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 sm:p-10 shadow-2xl shadow-black/60 overflow-hidden">
+          {/* Accent glow at top of card */}
+          <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/[0.15] blur-[80px]" />
+
+          {/* Content */}
+          <div className="relative">
+            {/* Wordmark inside card */}
+            <div className="flex items-center justify-center mb-8">
+              <Wordmark size="lg" />
             </div>
 
-            {/* Big serif headline */}
-            <h2 className="font-display uppercase text-white text-[clamp(2rem,3.2vw,2.75rem)] leading-[1.02] tracking-[-0.015em] mb-8">
+            {/* Role label */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="h-px w-6 bg-primary/60" />
+              <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary">
+                {roleLabel}
+              </span>
+              <span className="h-px w-6 bg-primary/60" />
+            </div>
+
+            {/* Title */}
+            <h1 className="font-display uppercase text-white text-[clamp(1.35rem,3vw,1.75rem)] leading-[1.1] tracking-[-0.01em] text-center mb-3">
               {title}
-            </h2>
+            </h1>
 
             {/* Subtitle */}
-            <p className="text-lead text-white/60 mb-12 max-w-sm">{subtitle}</p>
+            <p className="text-white/55 text-sm text-center leading-relaxed mb-8 max-w-xs mx-auto">
+              {subtitle}
+            </p>
 
-            {/* Bullets */}
-            {bullets.length > 0 && (
-              <ul className="space-y-0 border-t border-white/[0.08]">
-                {bullets.map((b, i) => (
-                  <li
-                    key={i}
-                    className="py-4 border-b border-white/[0.08] text-white/55 text-sm leading-relaxed"
-                  >
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Form */}
+            <div>{children}</div>
           </div>
         </div>
 
-        {/* Copyright bottom */}
-        <p className="relative z-10 text-white/30 text-xs">
+        {/* Footer below card */}
+        <p className="text-center text-[10px] uppercase tracking-[0.2em] text-white/30 mt-5">
           © 2026 Enabling E-Vehicle Pvt. Ltd.
         </p>
       </div>
-
-      {/* ─── Right — Form panel ────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center relative px-6 sm:px-10 py-20 lg:py-24">
-        {/* Mobile-only glow */}
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/[0.04] blur-[160px] lg:hidden" />
-
-        <div className="relative w-full max-w-md">
-          {/* Mobile back link */}
-          <Link
-            to="/"
-            className="lg:hidden flex items-center gap-2 text-white/60 hover:text-white text-sm mb-10 transition-colors duration-300 w-fit"
-          >
-            <ArrowLeft size={14} /> Back to home
-          </Link>
-
-          {/* Mobile brand mark */}
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <BrandMark className="h-8 w-auto" />
-            <span className="font-display text-xl tracking-tight text-white">
-              Enabling<span className="text-primary">EV</span>
-            </span>
-          </div>
-
-          {/* Mobile role eyebrow */}
-          <div className="lg:hidden flex items-center gap-3 mb-6">
-            <span className="h-px w-6 bg-primary/60" />
-            <span className="text-eyebrow text-primary/80">{roleLabel}</span>
-          </div>
-
-          {/* Mobile title */}
-          <h1 className="lg:hidden font-display uppercase text-white text-3xl sm:text-4xl leading-[1.05] tracking-[-0.015em] mb-8">
-            {title}
-          </h1>
-
-          {/* Desktop-only intro */}
-          <div className="hidden lg:block mb-10">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="h-px w-8 bg-primary/60" />
-              <span className="text-eyebrow text-white/50">Sign In</span>
-            </div>
-            <p className="text-white/50 text-sm">
-              Continue to your {roleLabel.toLowerCase()} dashboard.
-            </p>
-          </div>
-
-          {/* Form children */}
-          <div>{children}</div>
-        </div>
-      </div>
     </div>
-  ),
-);
+  </div>
+));
 
 export default AuthShell;

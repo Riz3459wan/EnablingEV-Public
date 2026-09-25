@@ -5,28 +5,39 @@ import useAsyncData from "../../hooks/useAsyncData";
 import { Input, Select } from "../../components/ui/Field";
 import { PrimaryButton } from "../../components/ui/Button";
 import DataTable from "../../components/ui/DataTable";
-import { Banner, ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
+import {
+  Banner,
+  ErrorCard,
+  LoadingCard,
+} from "../../components/ui/AsyncStates";
 import StatusBadge from "./StatusBadge";
 import QuotationDetailsModal from "./QuotationDetailsModal";
 import { useInvoiceActions } from "./useInvoiceActions";
 import { STATUS, brandFor } from "./constants";
 import { formatDate, formatINR } from "./calc";
+import { MOCK_QUOTATIONS } from "../../data/mockData";
+
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
 
 const PAGE_SIZE = 25;
 const MIN_DEALER_CODE_LENGTH = 7;
 const LOAD_ERROR = "Couldn't load quotations. Please try again.";
 
 const actionBtn =
-  "text-xs font-semibold px-3 py-1.5 rounded-full border border-line text-muted-foreground hover:text-white hover:border-accent/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground disabled:hover:border-line";
+  "text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-primary/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-white/60 disabled:hover:border-white/10";
 
 const newestFirst = (a, b) =>
-  (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0);
+  (new Date(b.createdAt).getTime() || 0) -
+  (new Date(a.createdAt).getTime() || 0);
 
 const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
   const isDealer = role === "dealer";
   const isSubAdmin = role === "subadmin";
   const canEdit = isSubAdmin || role === "admin";
-  const canLoad = !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
+  const canLoad = USE_MOCK
+    ? true
+    : !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -35,6 +46,20 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
   const { busy, error: docError, run } = useInvoiceActions();
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      const list = isDealer
+        ? MOCK_QUOTATIONS.filter((q) => q.dealerCode === dealerCode)
+        : MOCK_QUOTATIONS;
+      return [...list].sort(newestFirst);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     if (!canLoad) return [];
     const res = await api.get("/QuotationTable", {
       params: isDealer ? { dealerCode } : undefined,
@@ -75,7 +100,8 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
   }, [data, search, statusFilter]);
 
   const visible = filtered.slice(0, limit);
-  const details = detailsId != null ? data?.find((q) => q.id === detailsId) : null;
+  const details =
+    detailsId != null ? data?.find((q) => q.id === detailsId) : null;
 
   const columns = useMemo(
     () => [
@@ -88,7 +114,9 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
               render: (q) => (
                 <span>
                   {q.dealerName || "—"}
-                  <span className="block text-xs text-muted-foreground">{q.dealerCode}</span>
+                  <span className="block text-xs text-white/40 font-mono">
+                    {q.dealerCode}
+                  </span>
                 </span>
               ),
             },
@@ -98,16 +126,28 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
         label: "Model",
         render: (q) => `${brandFor(q.vehicleType)} ${q.modelName ?? ""}`,
       },
-      { key: "totalAmount", label: "Total", render: (q) => formatINR(q.totalAmount) },
-      { key: "createdAt", label: "Created", render: (q) => formatDate(q.createdAt) },
+      {
+        key: "totalAmount",
+        label: "Total",
+        render: (q) => formatINR(q.totalAmount),
+      },
+      {
+        key: "createdAt",
+        label: "Created",
+        render: (q) => formatDate(q.createdAt),
+      },
       {
         key: "chassisNumber",
         label: "Chassis Number",
         className: "font-mono",
         render: (q) =>
-          q.chassisNumber || <span className="text-placeholder">Pending</span>,
+          q.chassisNumber || <span className="text-white/30">Pending</span>,
       },
-      { key: "status", label: "Status", render: (q) => <StatusBadge status={q.status} /> },
+      {
+        key: "status",
+        label: "Status",
+        render: (q) => <StatusBadge status={q.status} />,
+      },
       {
         key: "actions",
         label: "Actions",
@@ -121,7 +161,9 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
                 className={actionBtn}
                 onClick={() => onEdit(q)}
                 disabled={
-                  isSubAdmin && (q.status || "").toLowerCase() === STATUS.DISPATCHED.toLowerCase()
+                  isSubAdmin &&
+                  (q.status || "").toLowerCase() ===
+                    STATUS.DISPATCHED.toLowerCase()
                 }
               >
                 Edit
@@ -148,7 +190,7 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
     [isDealer, isSubAdmin, canEdit, onEdit, run, busy],
   );
 
-  if (!canLoad) {
+  if (!canLoad && !USE_MOCK) {
     return (
       <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
     );
@@ -168,7 +210,7 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
             <div className="relative w-full lg:max-w-sm">
               <Search
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
               />
               <Input
                 value={search}
@@ -197,11 +239,14 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
                 </option>
               ))}
             </Select>
-            <p className="text-xs text-muted-foreground lg:ml-auto lg:mr-3">
+            <p className="text-xs text-white/40 lg:ml-auto lg:mr-3 font-rr tracking-[0.02em]">
               Showing {visible.length} of {filtered.length}
             </p>
-            <PrimaryButton onClick={onCreate} className="text-sm justify-center">
-              <Plus size={16} /> New Quotation
+            <PrimaryButton
+              onClick={onCreate}
+              className="text-sm justify-center !bg-primary !text-ink hover:!brightness-110 !rounded-full !text-[11px] !uppercase !tracking-[0.16em] !font-bold"
+            >
+              <Plus size={15} /> New Quotation
             </PrimaryButton>
           </div>
 
@@ -220,9 +265,10 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
             <div className="flex justify-center mt-5">
               <button
                 onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                className="text-sm text-accent hover:underline"
+                className="text-sm text-primary hover:underline"
               >
-                Show {Math.min(PAGE_SIZE, filtered.length - visible.length)} more
+                Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
+                more
               </button>
             </div>
           )}
@@ -237,7 +283,9 @@ const QuotationList = ({ role, dealerCode, onCreate, onEdit }) => {
           busy={busy}
           onClose={() => setDetailsId(null)}
           onApproved={(updated) =>
-            setData((list) => list.map((q) => (q.id === updated.id ? updated : q)))
+            setData((list) =>
+              list.map((q) => (q.id === updated.id ? updated : q)),
+            )
           }
           onPrint={(q) => run("print", q)}
           onPdf={(q) => run("pdf", q)}

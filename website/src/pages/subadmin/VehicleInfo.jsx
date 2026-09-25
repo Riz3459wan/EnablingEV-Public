@@ -3,6 +3,12 @@ import api from "../../api/client";
 import Modal from "../../components/ui/Modal";
 import Field, { Select } from "../../components/ui/Field";
 import { PrimaryButton } from "../../components/ui/Button";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { Plus } from "lucide-react";
+import { MOCK_DEALERS } from "../../data/mockData";
+
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
 
 const FIXED_PART_1 = "ME9EBCR";
 const FIXED_PART_2 = "H268";
@@ -41,18 +47,42 @@ const VehicleInfo = () => {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      setDealerOptions(
+        MOCK_DEALERS.map((d) => ({
+          dealerName: d.name,
+          dealerCode: d.dealerCode,
+        })),
+      );
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     api
       .get("/dealer")
       .then((res) => {
         setDealerOptions(
-          res.data.map((d) => ({ dealerName: d.name, dealerCode: d.dealerCode })),
+          res.data.map((d) => ({
+            dealerName: d.name,
+            dealerCode: d.dealerCode,
+          })),
         );
       })
       .catch(() => {});
   }, []);
 
   const chassisPartChange = (setter) => (e) => {
-    setter(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 3));
+    setter(
+      e.target.value
+        .toUpperCase()
+        .replace(/[^0-9A-Z]/g, "")
+        .slice(0, 3),
+    );
     setErrors((err) => ({ ...err, chassisMid1: "", chassisMid2: "" }));
   };
 
@@ -68,8 +98,10 @@ const VehicleInfo = () => {
   const validate = () => {
     const e = {};
     if (!dealerCode) e.dealerCode = "Dealer code is required.";
-    if (chassisMid1.length < 3) e.chassisMid1 = "First part must be 3 characters.";
-    if (chassisMid2.length < 3) e.chassisMid2 = "Second part must be 3 characters.";
+    if (chassisMid1.length < 3)
+      e.chassisMid1 = "First part must be 3 characters.";
+    if (chassisMid2.length < 3)
+      e.chassisMid2 = "Second part must be 3 characters.";
     Object.entries(selections).forEach(([key, value]) => {
       if (!value) e[key] = "This field is required.";
     });
@@ -85,6 +117,19 @@ const VehicleInfo = () => {
     setSubmitting(true);
 
     try {
+      // ══════════════════════════════════════════════════════════
+      // MOCK DATA
+      // ══════════════════════════════════════════════════════════
+      if (USE_MOCK) {
+        await new Promise((r) => setTimeout(r, 600));
+        setSubmitted(true);
+        handleClose();
+        return;
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // REAL API
+      // ══════════════════════════════════════════════════════════
       const res = await api.post("/VehicleTable", {
         dealerNameDealerCode: dealerCode,
         chassisNumber,
@@ -102,76 +147,130 @@ const VehicleInfo = () => {
         handleClose();
       }
     } catch {
-      alert("Please fill correct chassis number — make sure it isn't a duplicate.");
+      alert(
+        "Please fill correct chassis number — make sure it isn't a duplicate.",
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <section className="pt-32 pb-24 px-4 text-center max-w-md mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-2">Vehicle Information</h1>
-      <p className="text-muted-foreground mb-8">Register a new vehicle chassis against a dealer.</p>
-      {submitted && (
-        <p className="text-accent text-sm mb-4">Vehicle registered successfully.</p>
-      )}
-      <PrimaryButton onClick={() => setOpen(true)}>Click here</PrimaryButton>
+    <DashboardLayout dealerName="Sub Admin">
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
+            Sub Admin
+          </span>
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
+            Add Vehicle
+          </h1>
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
+            Register a new vehicle chassis against a dealer.
+          </p>
+        </div>
 
-      <Modal open={open} onClose={handleClose} title="Vehicle Information">
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <Field label="Dealer Name | Code" error={errors.dealerCode}>
-            <Select value={dealerCode} onChange={(e) => setDealerCode(e.target.value)} error={!!errors.dealerCode}>
-              <option value="">Select</option>
-              {dealerOptions.map((o) => (
-                <option key={o.dealerCode} value={`${o.dealerName} | ${o.dealerCode}`}>
-                  {o.dealerName} | {o.dealerCode}
-                </option>
-              ))}
-            </Select>
-          </Field>
+        {submitted && (
+          <div className="mb-6 px-4 py-3 rounded-lg text-sm border bg-primary/[0.08] border-primary/30 text-primary">
+            Vehicle registered successfully.
+          </div>
+        )}
 
-          <Field label="Chassis Number" error={errors.chassisMid1 || errors.chassisMid2}>
-            <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
-              <span>{FIXED_PART_1}</span>
-              <input
-                maxLength={3}
-                value={chassisMid1}
-                onChange={chassisPartChange(setChassisMid1)}
-                className="w-14 bg-transparent border-b border-line text-center text-white outline-none focus:border-accent"
-              />
-              <span>{FIXED_PART_2}</span>
-              <input
-                maxLength={3}
-                value={chassisMid2}
-                onChange={chassisPartChange(setChassisMid2)}
-                className="w-14 bg-transparent border-b border-line text-center text-white outline-none focus:border-accent"
-              />
-            </div>
-          </Field>
+        <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-6 sm:p-10 text-center max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center mx-auto mb-5">
+            <Plus size={22} className="text-primary" strokeWidth={1.75} />
+          </div>
+          <h2 className="font-display uppercase text-white text-lg tracking-[-0.01em] mb-2">
+            Register New Vehicle
+          </h2>
+          <p className="text-xs text-white/45 mb-6 max-w-xs mx-auto leading-relaxed">
+            Fill in chassis, model, battery, and dealer details
+          </p>
+          <PrimaryButton
+            onClick={() => setOpen(true)}
+            className="!bg-primary !text-ink hover:!brightness-110 !rounded-full !px-7 !py-3 !text-[11px] !uppercase !tracking-[0.16em] !font-bold"
+          >
+            <Plus size={14} />
+            Open Form
+          </PrimaryButton>
+        </div>
 
-          {Object.entries(OPTIONS).map(([key, values]) => (
-            <Field key={key} label={key.replace(/([A-Z])/g, " $1")} error={errors[key]}>
+        <Modal open={open} onClose={handleClose} title="Vehicle Information">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <Field label="Dealer Name | Code" error={errors.dealerCode}>
               <Select
-                value={selections[key]}
-                onChange={(e) => setSelections((s) => ({ ...s, [key]: e.target.value }))}
-                error={!!errors[key]}
+                value={dealerCode}
+                onChange={(e) => setDealerCode(e.target.value)}
+                error={!!errors.dealerCode}
               >
                 <option value="">Select</option>
-                {values.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
+                {dealerOptions.map((o) => (
+                  <option
+                    key={o.dealerCode}
+                    value={`${o.dealerName} | ${o.dealerCode}`}
+                  >
+                    {o.dealerName} | {o.dealerCode}
                   </option>
                 ))}
               </Select>
             </Field>
-          ))}
 
-          <PrimaryButton type="submit" disabled={submitting} className="w-full justify-center">
-            {submitting ? "Submitting..." : "Submit"}
-          </PrimaryButton>
-        </form>
-      </Modal>
-    </section>
+            <Field
+              label="Chassis Number"
+              error={errors.chassisMid1 || errors.chassisMid2}
+            >
+              <div className="flex items-center gap-2 justify-center text-sm text-white/60 font-mono bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
+                <span>{FIXED_PART_1}</span>
+                <input
+                  maxLength={3}
+                  value={chassisMid1}
+                  onChange={chassisPartChange(setChassisMid1)}
+                  className="w-14 bg-ink border border-white/[0.1] rounded-md text-center text-white outline-none focus:border-primary/60 py-2 font-bold uppercase text-sm"
+                />
+                <span>{FIXED_PART_2}</span>
+                <input
+                  maxLength={3}
+                  value={chassisMid2}
+                  onChange={chassisPartChange(setChassisMid2)}
+                  className="w-14 bg-ink border border-white/[0.1] rounded-md text-center text-white outline-none focus:border-primary/60 py-2 font-bold uppercase text-sm"
+                />
+              </div>
+            </Field>
+
+            {Object.entries(OPTIONS).map(([key, values]) => (
+              <Field
+                key={key}
+                label={key.replace(/([A-Z])/g, " $1")}
+                error={errors[key]}
+              >
+                <Select
+                  value={selections[key]}
+                  onChange={(e) =>
+                    setSelections((s) => ({ ...s, [key]: e.target.value }))
+                  }
+                  error={!!errors[key]}
+                >
+                  <option value="">Select</option>
+                  {values.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ))}
+
+            <PrimaryButton
+              type="submit"
+              disabled={submitting}
+              className="w-full justify-center !bg-primary !text-ink hover:!brightness-110 !rounded-full !py-3 !text-[11px] !uppercase !tracking-[0.16em] !font-bold"
+            >
+              {submitting ? "Submitting..." : "Submit"}
+            </PrimaryButton>
+          </form>
+        </Modal>
+      </div>
+    </DashboardLayout>
   );
 };
 

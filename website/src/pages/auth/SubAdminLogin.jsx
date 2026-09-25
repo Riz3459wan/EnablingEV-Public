@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight, User, Lock } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import AuthShell from "../../components/layout/AuthShell";
 import Field, { Input, PasswordInput } from "../../components/ui/Field";
-import { PrimaryButton } from "../../components/ui/Button";
 
 const SubAdminLogin = () => {
   const [userId, setUserId] = useState("");
@@ -20,9 +19,6 @@ const SubAdminLogin = () => {
     setSubmitting(true);
 
     try {
-      // ==============================
-      // MOCK / HARDCODED LOGIN
-      // ==============================
       const MOCK_USER_ID = "subAdmin";
       const MOCK_PASSWORD = "subadmin123";
 
@@ -37,16 +33,6 @@ const SubAdminLogin = () => {
         setUserId("");
         setPassword("");
       }
-
-      // ==========================================
-      // ORIGINAL API CODE — COMMENTED FOR MOCK DATA
-      // ==========================================
-      // const response = await api.post("/CreateProfile/login", { userId, password });
-      // if (response.status === 200) {
-      //   localStorage.setItem("CreateProfile", JSON.stringify(response.data.user));
-      //   login(response.data.token, "subadmin");
-      //   navigate("/subAdminDash", { state: { userId } });
-      // }
     } catch {
       setError("Something went wrong while logging in.");
     } finally {
@@ -58,20 +44,17 @@ const SubAdminLogin = () => {
     <AuthShell
       roleLabel="Sub Admin"
       title="Sub Admin Login"
-      subtitle="Manage assigned dealers, vehicles, and quotations."
-      bullets={[
-        "Register and manage vehicles",
-        "Approve quotations from dealers",
-        "Browse dealer and customer records",
-      ]}
+      subtitle="Manage dealers, vehicles, and quotations across the entire network."
     >
-      <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <Field label="User ID">
           <Input
             autoFocus
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             placeholder="Enter your user ID"
+            icon={User}
+            autoComplete="username"
             required
           />
         </Field>
@@ -80,33 +63,40 @@ const SubAdminLogin = () => {
           <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="Enter your password"
+            icon={Lock}
+            autoComplete="current-password"
             required
           />
         </Field>
 
         {error && (
-          <p className="text-amber-300 text-xs bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 leading-relaxed">
+          <div className="flex items-start gap-2.5 text-amber-300 text-xs bg-amber-400/[0.08] border border-amber-400/25 rounded-xl px-4 py-3 leading-relaxed">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
             {error}
-          </p>
+          </div>
         )}
 
-        {/* Submit */}
-        <div className="pt-2">
-          <PrimaryButton
-            type="submit"
-            disabled={submitting}
-            className="w-full justify-center !bg-white !text-ink hover:!bg-primary !px-8 !py-4 !text-[13px] !uppercase !tracking-[0.2em] !font-semibold !rounded-full"
-          >
-            {submitting ? (
-              <>
-                <Loader2 size={16} className="animate-spin" /> Signing In...
-              </>
-            ) : (
-              "Sign In"
-            )}
-          </PrimaryButton>
-        </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="group relative w-full inline-flex items-center justify-center gap-2.5 text-[12px] uppercase tracking-[0.2em] font-bold text-ink bg-gradient-to-r from-primary via-primary to-primary hover:brightness-110 transition-all duration-300 px-8 py-4 rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/50 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none mt-2"
+        >
+          {submitting ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            <>
+              Sign In
+              <ArrowRight
+                size={15}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </>
+          )}
+        </button>
       </form>
     </AuthShell>
   );

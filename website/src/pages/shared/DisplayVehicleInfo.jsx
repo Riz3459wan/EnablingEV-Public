@@ -1,22 +1,19 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { useDealerInfo } from "../../auth/useDealerInfo";
-import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
 import useAsyncData from "../../hooks/useAsyncData";
 import { matchesVehicleType } from "../../utils/vehicleType";
 import { Input, Select } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import { ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { MOCK_QUOTATIONS, MOCK_VEHICLES } from "../../data/mockData";
 
-// Migrated from the old app's DisplayVehicleInfo.jsx. Shows DISPATCHED
-// vehicles (quotations with status=Dispatched), enriched with the vehicle
-// record's `isUsed` flag from /VehicleTable.
-//   dealer         -> only their own dispatched vehicles
-//   admin/subadmin -> all dealers, with a dealer filter (built from the loaded
-//                     data, so the old extra /dealer/minimal call isn't needed)
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
+
 const PAGE_SIZE = 25;
 const MIN_DEALER_CODE_LENGTH = 7;
 const LOAD_ERROR = "Couldn't load vehicles. Please try again.";
@@ -39,13 +36,13 @@ const dealerNameOf = (q) =>
   q.dealerName || q.dealerNameDealerCode?.split("|")[0]?.trim() || "";
 
 const UsedBadge = ({ value }) => {
-  if (value === null) return <span className="text-placeholder">—</span>;
+  if (value === null) return <span className="text-white/30">—</span>;
   return value ? (
-    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30">
+    <span className="text-[10px] uppercase tracking-[0.14em] font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 font-rr">
       Yes
     </span>
   ) : (
-    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/30">
+    <span className="text-[10px] uppercase tracking-[0.14em] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30 font-rr">
       No
     </span>
   );
@@ -53,7 +50,7 @@ const UsedBadge = ({ value }) => {
 
 const DisplayVehicleInfo = () => {
   const { role } = useAuth();
-  const { dealerCode } = useDealerInfo();
+  const { dealerCode, dealerInfo } = useDealerInfo();
   const isDealer = role === "dealer";
   const canLoad = !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
@@ -63,12 +60,41 @@ const DisplayVehicleInfo = () => {
   const [limit, setLimit] = useState(PAGE_SIZE);
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      const usedByChassis = new Map(
+        MOCK_VEHICLES.map((v) => [v.chassisNumber, v.isUsed === true]),
+      );
+      const dispatched = MOCK_QUOTATIONS.filter(
+        (q) => (q.status || "").toLowerCase() === "dispatched",
+      );
+      const scoped = isDealer
+        ? dispatched.filter((q) => q.dealerCode === dealerCode)
+        : dispatched;
+      return scoped.map((q) => ({
+        ...q,
+        model: q.modelName || q.model,
+        bodyType: q.bodyTypeName || q.bodyType,
+        color: q.colorName || q.color,
+        specs: batterySpecs(q),
+        dealerLabel: dealerNameOf(q),
+        isUsed: usedByChassis.get(q.chassisNumber) ?? null,
+      }));
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     if (!canLoad) return [];
-    const params = { status: "Dispatched", ...(isDealer ? { dealerCode } : {}) };
+    const params = {
+      status: "Dispatched",
+      ...(isDealer ? { dealerCode } : {}),
+    };
     const [quotes, vehicles] = await Promise.all([
       api.get("/QuotationTable", { params }),
-      // isUsed is a nice-to-have: if this call fails the list still loads and
-      // the column shows "—" instead of wrongly saying "No".
       api
         .get("/VehicleTable")
         .then((r) => r.data)
@@ -89,7 +115,9 @@ const DisplayVehicleInfo = () => {
       color: q.colorName || q.color,
       specs: batterySpecs(q),
       dealerLabel: dealerNameOf(q),
-      isUsed: usedByChassis ? usedByChassis.get(q.chassisNumber) === true : null,
+      isUsed: usedByChassis
+        ? usedByChassis.get(q.chassisNumber) === true
+        : null,
     }));
   }, [canLoad, isDealer, dealerCode]);
 
@@ -104,7 +132,10 @@ const DisplayVehicleInfo = () => {
     const map = new Map();
     (data ?? []).forEach((q) => {
       if (q.dealerCode && !map.has(q.dealerCode)) {
-        map.set(q.dealerCode, `${q.dealerLabel || "Unknown Dealer"} (${q.dealerCode})`);
+        map.set(
+          q.dealerCode,
+          `${q.dealerLabel || "Unknown Dealer"} (${q.dealerCode})`,
+        );
       }
     });
     return [...map.entries()]
@@ -116,7 +147,11 @@ const DisplayVehicleInfo = () => {
     const term = search.trim().toLowerCase();
     return (data ?? []).filter((q) => {
       if (!matchesVehicleType(q, type)) return false;
-      if (!isDealer && dealerFilter !== "all" && q.dealerCode !== dealerFilter) {
+      if (
+        !isDealer &&
+        dealerFilter !== "all" &&
+        q.dealerCode !== dealerFilter
+      ) {
         return false;
       }
       if (!term) return true;
@@ -154,7 +189,7 @@ const DisplayVehicleInfo = () => {
                 <span>
                   {row.dealerLabel || "—"}
                   {row.dealerCode && (
-                    <span className="block text-xs text-muted-foreground">
+                    <span className="block text-xs text-white/40 font-mono">
                       {row.dealerCode}
                     </span>
                   )}
@@ -180,30 +215,26 @@ const DisplayVehicleInfo = () => {
   const resetPaging = () => setLimit(PAGE_SIZE);
 
   return (
-    <section className="min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+    <DashboardLayout
+      dealerName={isDealer ? dealerInfo?.name : "Sub Admin"}
+      dealerCode={isDealer ? dealerCode : null}
+    >
       <div className="w-full max-w-7xl mx-auto">
-        <Link
-          to={ROLE_DASH[role] || "/"}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft size={15} /> Back to dashboard
-        </Link>
-
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-1 inline-block">
-            {ROLE_LABEL[role]}
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
+            {isDealer ? "Dealer" : "Sub Admin"}
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
             {isDealer ? "My Vehicles" : "Vehicle Info"}
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-2">
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
             {isDealer
               ? "Vehicles dispatched to your dealership."
               : "Dispatched vehicles across all dealers."}
           </p>
         </div>
 
-        {!canLoad ? (
+        {!canLoad && !USE_MOCK ? (
           <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
         ) : loading ? (
           <LoadingCard />
@@ -215,7 +246,7 @@ const DisplayVehicleInfo = () => {
               <div className="relative w-full lg:max-w-sm">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
                 />
                 <Input
                   value={search}
@@ -229,7 +260,7 @@ const DisplayVehicleInfo = () => {
                 />
               </div>
 
-              <div className="inline-flex self-start rounded-full border border-line bg-card p-1">
+              <div className="inline-flex self-start rounded-full border border-white/10 bg-white/[0.03] p-1">
                 {TYPE_OPTIONS.map(([value, label]) => (
                   <button
                     key={value}
@@ -238,10 +269,10 @@ const DisplayVehicleInfo = () => {
                       resetPaging();
                     }}
                     aria-pressed={type === value}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-colors ${
+                    className={`px-4 py-1.5 text-[11px] uppercase tracking-[0.14em] font-semibold rounded-full transition-colors font-rr ${
                       type === value
-                        ? "bg-primary text-background"
-                        : "text-muted-foreground hover:text-white"
+                        ? "bg-primary text-ink"
+                        : "text-white/50 hover:text-white"
                     }`}
                   >
                     {label}
@@ -268,9 +299,8 @@ const DisplayVehicleInfo = () => {
                 </Select>
               )}
 
-              <p className="text-xs text-muted-foreground lg:ml-auto">
-                Showing {visible.length} of {filtered.length} dispatched
-                vehicles
+              <p className="text-xs text-white/40 lg:ml-auto font-rr tracking-[0.02em]">
+                Showing {visible.length} of {filtered.length}
               </p>
             </div>
 
@@ -289,7 +319,7 @@ const DisplayVehicleInfo = () => {
               <div className="flex justify-center mt-5">
                 <button
                   onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                  className="text-sm text-accent hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
                   more
@@ -299,7 +329,7 @@ const DisplayVehicleInfo = () => {
           </>
         )}
       </div>
-    </section>
+    </DashboardLayout>
   );
 };
 

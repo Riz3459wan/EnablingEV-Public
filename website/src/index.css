@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* Design tokens — EnablingEV "quiet luxury" system.                   */
-/* Inspired by premium automotive design language: layered near-black  */
-/* surfaces, restrained accents, oversized serif typography,           */
-/* generous whitespace. Brand color (Volt lime) is used sparingly as   */
-/* a signature, not as decoration.                                     */
+/* Design tokens — EnablingEV "Quiet Luxury Automotive" system        */
+/* Inspired by premium automotive typography: clean, restrained,      */
+/* geometric, uppercase wordmarks, generous whitespace.               */
 /* ------------------------------------------------------------------ */
+
 @theme {
-  /* ─── Base surfaces — layered, tonal ───────────────────────── */
-  --color-background: oklch(14% 0.008 250);      /* page bg — deep charcoal */
+  /* ─── Base surfaces ───────────────────────────────────────── */
+  --color-background: oklch(14% 0.008 250);
   --color-foreground: oklch(98% 0.005 130);
 
-  /* Layered surfaces — each slightly lighter for depth */
-  --color-surface: oklch(18.5% 0.01 250);        /* hover, elevated */
-  --color-card: oklch(16.5% 0.009 250);          /* cards, tiles */
+  /* Layered surfaces */
+  --color-surface: oklch(18.5% 0.01 250);
+  --color-card: oklch(16.5% 0.009 250);
 
-  /* Borders — subtle but visible */
+  /* Borders */
   --color-border: oklch(26% 0.012 250);
   --color-line: oklch(30% 0.014 250);
 
-  /* ─── Primary — Volt lime (signature) ─────────────────────── */
+  /* ─── Primary — Volt lime ─────────────────────────────────── */
   --color-primary: oklch(87% 0.2 124.12);
   --color-primary-hover: oklch(90.86% 0.2026 125.12);
   --color-primary-foreground: oklch(14% 0.008 250);
@@ -29,11 +28,11 @@
   --color-accent: oklch(72% 0.09 200);
   --color-accent-foreground: oklch(14% 0.008 250);
 
-  /* ─── Ember — warm copper (rare use) ──────────────────────── */
+  /* ─── Ember — warm copper ─────────────────────────────────── */
   --color-ember: oklch(72% 0.14 55);
   --color-ember-foreground: oklch(14% 0.008 250);
 
-  /* ─── Neutrals — deepest ink for hero/CTA ─────────────────── */
+  /* ─── Neutrals ────────────────────────────────────────────── */
   --color-ink: oklch(11.5% 0.008 250);
   --color-bone: oklch(94% 0.008 80);
   --color-stone: oklch(72% 0.008 80);
@@ -43,28 +42,50 @@
   --color-placeholder: oklch(48% 0.016 216);
   --color-destructive: oklch(65% 0.16 25);
 
-  /* ─── Typography — Playfair Display + Inter ──────────────── */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Playfair Display", Georgia, serif;
+  /* ----------------------------------------------------------------
+     Typography
+     
+     Premium automotive direction:
+     - Inter Tight for brand / UI / headings / wordmark
+     - No serif typography
+     - Clean geometric appearance
+     - Wide tracking for brand moments
+     ---------------------------------------------------------------- */
+
+  --font-sans: "Inter Tight", "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter Tight", "Inter", system-ui, -apple-system, sans-serif;
+  --font-rr: "Inter Tight", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 /* ------------------------------------------------------------------ */
-/* Utilities                                                           */
+/* Custom utilities                                                    */
 /* ------------------------------------------------------------------ */
 
-/* Faint blueprint grid — engineering motif, very subtle */
+/* ─── Faint engineering / blueprint grid ─────────────────────────── */
+
 @utility bg-ev-grid {
   background-color: var(--color-background);
+
   background-image:
-    linear-gradient(color-mix(in oklch, var(--color-line) 30%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklch, var(--color-line) 30%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      color-mix(in oklch, var(--color-line) 30%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-line) 30%, transparent) 1px,
+      transparent 1px
+    );
+
   background-size: 80px 80px;
   background-position: center top;
+
   mask-image: linear-gradient(to bottom, black, transparent 90%);
 }
 
-/* Soft radial glow — atmospheric, not decorative */
+/* ─── Soft atmospheric glow ─────────────────────────────────────── */
+
 @utility bg-ev-glow {
   background-image: radial-gradient(
     ellipse at top,
@@ -73,25 +94,29 @@
   );
 }
 
-/* Editorial: deepest ink section — hero, CTA, brand moments */
+/* ─── Deep luxury section ───────────────────────────────────────── */
+
 @utility bg-ink {
   background-color: var(--color-ink);
   color: var(--color-bone);
 }
 
-/* Card surface — a visible step up from the page background */
+/* ─── Card surface ──────────────────────────────────────────────── */
+
 @utility bg-card {
   background-color: var(--color-card);
 }
 
-/* Elevated surface — used for hover states and nested panels */
+/* ─── Elevated surface ──────────────────────────────────────────── */
+
 @utility bg-surface {
   background-color: var(--color-surface);
 }
 
 /* ------------------------------------------------------------------ */
-/* Base layer                                                          */
+/* Base layer                                                         */
 /* ------------------------------------------------------------------ */
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -101,14 +126,22 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+
     font-family: var(--font-sans);
+
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "kern";
+
     font-optical-sizing: auto;
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
     text-rendering: optimizeLegibility;
+
     overflow-x: hidden;
   }
+
+  /* ─── Premium scrollbar ───────────────────────────────────── */
 
   ::-webkit-scrollbar {
     width: 6px;
@@ -127,20 +160,38 @@
     background: var(--color-primary);
   }
 
-  /* Headings — Playfair Display, tight tracking, restrained weight */
-  h1, h2, h3, h4 {
+  /* ----------------------------------------------------------------
+     Headings — Inter Tight, premium automotive
+     ---------------------------------------------------------------- */
+
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1;
+    text-wrap: balance;
   }
 
-  h1 { line-height: 0.98; }
-  h2 { line-height: 1.02; }
-  h3 { line-height: 1.1; }
-  h4 { line-height: 1.2; }
+  h1 {
+    line-height: 0.96;
+  }
+  h2 {
+    line-height: 1;
+  }
+  h3 {
+    line-height: 1.08;
+  }
+  h4 {
+    line-height: 1.15;
+  }
 
-  /* Selection — signature brand moment */
+  /* ─── Selection ────────────────────────────────────────────── */
+
   ::selection {
     background: var(--color-primary);
     color: var(--color-primary-foreground);
@@ -148,9 +199,12 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Utilities layer — typography + animation + interactions             */
+/* Utilities layer                                                    */
 /* ------------------------------------------------------------------ */
+
 @layer utilities {
+  /* ─── Font utilities ───────────────────────────────────────── */
+
   .font-display {
     font-family: var(--font-display);
   }
@@ -159,64 +213,137 @@
     font-family: var(--font-sans);
   }
 
-  /* Tabular figures for spec numbers */
+  .font-rr {
+    font-family:
+      "Inter Tight",
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    font-feature-settings: "ss01", "cv11", "kern";
+  }
+
+  /* ─── Tabular figures ─────────────────────────────────────── */
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Luxury letter-spacing for eyebrow labels */
+  /* ─── Luxury tracking ─────────────────────────────────────── */
+
   .tracking-luxe {
     letter-spacing: 0.28em;
   }
 
-  /* ─── Range Rover-style typography scale ──────────────────── */
+  /* ----------------------------------------------------------------
+     DISPLAY UPPER — premium uppercase automotive headline
+     ---------------------------------------------------------------- */
 
-  /* DISPLAY UPPER — uppercase serif headline. Used with .font-display.
-     Tighter tracking than natural uppercase, medium weight. */
   .text-display-upper {
     font-family: var(--font-display);
     text-transform: uppercase;
-    letter-spacing: -0.005em;
-    font-weight: 400;
+    letter-spacing: 0.01em;
+    font-weight: 500;
+    line-height: 0.98;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1;
   }
 
-  /* HEADLINE — main hero / section headline. ~3.5rem on desktop. */
+  /* ----------------------------------------------------------------
+     HEADLINE — main hero / section headline
+     ---------------------------------------------------------------- */
+
   .text-headline {
-    font-size: clamp(2rem, 3.5vw, 3.5rem);
-    line-height: 1.02;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    font-weight: 500;
   }
 
-  /* SUBHEAD — secondary line under a headline. ~2rem on desktop. */
+  /* ----------------------------------------------------------------
+     SUBHEAD
+     ---------------------------------------------------------------- */
+
   .text-subhead {
+    font-family: var(--font-display);
     font-size: clamp(1.375rem, 2.2vw, 2rem);
-    line-height: 1.15;
-    letter-spacing: 0.02em;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    font-weight: 500;
   }
 
-  /* PUNCH — small headline-tier text. ~1.125rem. */
+  /* ----------------------------------------------------------------
+     PUNCH — small headline-tier text
+     ---------------------------------------------------------------- */
+
   .text-punch {
+    font-family: var(--font-sans);
     font-size: clamp(0.875rem, 1vw, 1.125rem);
     line-height: 1.2;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
+    font-weight: 500;
   }
 
-  /* EYEBROW — small uppercase label above headlines. */
+  /* ----------------------------------------------------------------
+     EYEBROW — small luxury automotive label
+     ---------------------------------------------------------------- */
+
   .text-eyebrow {
-    font-size: 0.6875rem; /* 11px */
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
     line-height: 1;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     font-weight: 500;
   }
 
-  /* LEAD — body paragraph under a headline. */
+  /* ----------------------------------------------------------------
+     LEAD — body paragraph
+     ---------------------------------------------------------------- */
+
   .text-lead {
+    font-family: var(--font-sans);
     font-size: clamp(1rem, 1.05vw, 1.125rem);
     line-height: 1.65;
+    letter-spacing: 0.005em;
+    font-weight: 400;
   }
 
-  /* ─── Animations ─────────────────────────────────────────── */
+  /* ----------------------------------------------------------------
+     WORDMARK
+     
+     ENABLING EV — Range Rover-style brand wordmark.
+     
+     Reference: "RANGE ROVER"
+       - Bold (700)
+       - Uppercase
+       - ~0.22em letter-spacing
+       - Tight word gap
+       - No serif, no accent color
+     
+     Font: Inter Tight Bold (closest free match to LandRoverWeb-Bold)
+     ---------------------------------------------------------------- */
+
+  .wordmark {
+    font-family:
+      "Inter Tight",
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    font-feature-settings: "ss01", "cv11", "kern";
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  /* ----------------------------------------------------------------
+     ANIMATIONS
+     ---------------------------------------------------------------- */
 
   @keyframes fade-up {
     from {
@@ -234,26 +361,46 @@
   }
 
   @keyframes slow-zoom {
-    from { transform: scale(1); }
-    to { transform: scale(1.08); }
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.08);
+    }
   }
 
   .animate-slow-zoom {
     animation: slow-zoom 18s ease-out infinite alternate;
   }
 
-  /* ─── Interactions ───────────────────────────────────────── */
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
 
-  /* Understated link with sliding underline */
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2.2s ease-in-out infinite;
+  }
+
+  /* ----------------------------------------------------------------
+     LUXURY LINK
+     ---------------------------------------------------------------- */
+
   .link-luxe {
     position: relative;
     display: inline-block;
   }
+
   .link-luxe::after {
     content: "";
     position: absolute;
     left: 0;
-    bottom: -2px;
+    bottom: -3px;
     height: 1px;
     width: 100%;
     background: currentColor;
@@ -261,8 +408,67 @@
     transform-origin: right;
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
+
   .link-luxe:hover::after {
     transform: scaleX(1);
     transform-origin: left;
+  }
+
+  /* ----------------------------------------------------------------
+     AUTOMOTIVE BUTTON TEXT
+     ---------------------------------------------------------------- */
+
+  .text-automotive-button {
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* ----------------------------------------------------------------
+     PREMIUM NAVIGATION
+     ---------------------------------------------------------------- */
+
+  .text-nav-luxe {
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* ----------------------------------------------------------------
+     SPEC / TECHNICAL TEXT
+     ---------------------------------------------------------------- */
+
+  .text-spec {
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ----------------------------------------------------------------
+     REDUCED MOTION — accessibility
+     ---------------------------------------------------------------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

@@ -6,12 +6,10 @@ import aboutImg from "../../assets/about/about.webp";
 import heroImg from "../../assets/products/F2SS1.webp";
 import msImg from "../../assets/products/MS1.webp";
 
-// About — Range Rover editorial treatment.
-// Hero → Chapter 1 (image left) → Pull-quote → Chapter 2 (image right) → Closing CTA.
 const About = memo(() => {
   return (
     <div className="bg-ink text-white">
-      {/* ─── 1. HERO — full-bleed image, one-line statement ──────── */}
+      {/* ─── 1. HERO ──────────────────────────────────────────── */}
       <section className="relative w-full h-[60vh] sm:h-[75vh] lg:h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
           <ImageWithFallback
@@ -23,24 +21,20 @@ const About = memo(() => {
           />
         </div>
 
-        {/* Cinematic overlays */}
         <div className="absolute inset-0 z-10 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/60" />
         </div>
 
-        {/* Content — bottom-left */}
         <div className="relative z-20 h-full flex items-end">
           <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pb-12 sm:pb-16 lg:pb-28">
             <div className="max-w-3xl">
-              {/* Eyebrow */}
               <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
                 <span className="h-px w-6 sm:w-10 bg-primary" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/70">
+                <span className="text-eyebrow text-white/70">
                   About EnablingEV
                 </span>
               </div>
 
-              {/* Headline */}
               <h1
                 className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em]"
                 style={{ animationDelay: "120ms" }}
@@ -54,11 +48,10 @@ const About = memo(() => {
         </div>
       </section>
 
-      {/* ─── 2. CHAPTER 1 — image left, text right ─────────────── */}
+      {/* ─── 2. CHAPTER 1 ─────────────────────────────────────── */}
       <section className="relative bg-ink">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-            {/* Image */}
             <div className="relative h-[40vh] sm:h-[50vh] lg:h-[70vh] overflow-hidden">
               <ImageWithFallback
                 src={heroImg}
@@ -68,11 +61,10 @@ const About = memo(() => {
               />
             </div>
 
-            {/* Text */}
             <div className="max-w-xl lg:pl-4 xl:pl-8">
               <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
                 <span className="h-px w-6 sm:w-8 bg-primary/60" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                <span className="text-eyebrow text-white/50">
                   The Beginning
                 </span>
               </div>
@@ -112,7 +104,7 @@ const About = memo(() => {
         </div>
       </section>
 
-      {/* ─── 3. PULL-QUOTE — centered serif statement ──────────── */}
+      {/* ─── 3. PULL-QUOTE ─────────────────────────────────────── */}
       <section className="relative bg-ink border-y border-white/[0.06]">
         <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[500px] sm:w-[800px] h-[300px] sm:h-[400px] rounded-full bg-primary/[0.03] blur-[140px] sm:blur-[160px]" />
 
@@ -120,9 +112,7 @@ const About = memo(() => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-10">
               <span className="h-px w-6 sm:w-8 bg-primary/60" />
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
-                Our Belief
-              </span>
+              <span className="text-eyebrow text-white/50">Our Belief</span>
               <span className="h-px w-6 sm:w-8 bg-primary/60" />
             </div>
 
@@ -139,17 +129,14 @@ const About = memo(() => {
         </div>
       </section>
 
-      {/* ─── 4. CHAPTER 2 — text left, image right ─────────────── */}
+      {/* ─── 4. CHAPTER 2 ─────────────────────────────────────── */}
       <section className="relative bg-ink">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-            {/* Text — first on desktop */}
             <div className="max-w-xl lg:order-1">
               <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
                 <span className="h-px w-6 sm:w-8 bg-primary/60" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
-                  The Journey
-                </span>
+                <span className="text-eyebrow text-white/50">The Journey</span>
               </div>
 
               <h2
@@ -180,9 +167,8 @@ const About = memo(() => {
                 </p>
               </div>
 
-              {/* Stats — thin dividers */}
               <div
-                className="animate-fade-up grid grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/[0.08]"
+                className="animate-fade-up grid grid-cols-3 gap-4 sm:gap-6 mt-10 sm:mt-12 pt-8 sm:pt-10 border-t border-white/[0.08]"
                 style={{ animationDelay: "320ms" }}
               >
                 {[
@@ -202,7 +188,6 @@ const About = memo(() => {
               </div>
             </div>
 
-            {/* Image — second on desktop, stacked on mobile */}
             <div className="relative h-[40vh] sm:h-[50vh] lg:h-[70vh] overflow-hidden lg:order-2">
               <ImageWithFallback
                 src={msImg}
@@ -215,15 +200,13 @@ const About = memo(() => {
         </div>
       </section>
 
-      {/* ─── 5. FINAL CTA — closing statement ──────────────────── */}
+      {/* ─── 5. FINAL CTA ─────────────────────────────────────── */}
       <section className="relative bg-ink border-t border-white/[0.06]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
           <div className="max-w-2xl mx-auto text-center">
             <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
               <span className="h-px w-6 sm:w-8 bg-primary/60" />
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
-                Keep Exploring
-              </span>
+              <span className="text-eyebrow text-white/50">Keep Exploring</span>
               <span className="h-px w-6 sm:w-8 bg-primary/60" />
             </div>
 
@@ -235,12 +218,12 @@ const About = memo(() => {
             </h2>
 
             <div
-              className="animate-fade-up flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-10"
+              className="animate-fade-up flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-5 sm:gap-8"
               style={{ animationDelay: "220ms" }}
             >
               <Link
                 to="/product"
-                className="group inline-flex items-center justify-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full w-full sm:w-auto"
+                className="group inline-flex items-center justify-center gap-3 text-[12px] uppercase tracking-[0.16em] font-semibold text-ink bg-white hover:bg-primary transition-colors duration-300 px-7 sm:px-8 py-3.5 rounded-none w-full sm:w-auto"
               >
                 Explore Vehicles
                 <ArrowRight
@@ -251,13 +234,9 @@ const About = memo(() => {
 
               <Link
                 to="/gallery"
-                className="group inline-flex items-center justify-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300 w-full sm:w-auto py-2"
+                className="group inline-flex items-center justify-center gap-2 text-[12px] uppercase tracking-[0.16em] font-semibold text-white/70 hover:text-white transition-colors duration-300 w-full sm:w-auto py-2"
               >
                 <span className="link-luxe">View Gallery</span>
-                <ArrowRight
-                  size={14}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
               </Link>
             </div>
           </div>

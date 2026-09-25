@@ -5,6 +5,19 @@ import SeoManager from "../../seo/SeoManager";
 import EnquiryModal from "../EnquiryModal";
 import { useModal } from "../../context/ModalContext";
 
+// Layout — wraps every public page with Navbar + main + Footer.
+// A single `pt-` on <main> clears the fixed 3-row navbar height (~164px desktop,
+// ~104px mobile). Pages below should NOT add their own top padding for the
+// navbar — they only add internal section padding.
+//
+// Navbar height (approx):
+//   Row 1:  40px  (thin centered message)
+//   Row 2:  64-80px (main nav)
+//   Row 3:  44px  (sub-nav — desktop only)
+//   ─────────────
+//   Desktop: ~164px
+//   Mobile:  ~104px (Row 3 hidden)
+
 const Layout = () => {
   const {
     enquiry,
@@ -19,11 +32,11 @@ const Layout = () => {
       <SeoManager />
       <Navbar onOpenDealer={openDealerEnquiry} />
 
-      <main className="flex flex-col">
+      {/* Single source of truth for "start below the fixed navbar" */}
+      <main className="flex flex-col pt-[104px] lg:pt-[164px]">
         <Outlet />
       </main>
 
-      {/* Footer no longer takes props — CTAs route to /DealerForm directly */}
       <Footer />
 
       <EnquiryModal

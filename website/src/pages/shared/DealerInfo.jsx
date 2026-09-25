@@ -1,23 +1,22 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Search, Trash2 } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
-import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
 import useAsyncData from "../../hooks/useAsyncData";
 import { Input } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmModal from "../../components/ui/ConfirmModal";
-import { Banner, ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
+import {
+  Banner,
+  ErrorCard,
+  LoadingCard,
+} from "../../components/ui/AsyncStates";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { MOCK_DEALERS } from "../../data/mockData";
 
-// Migrated from the old app's components/dealerInfo/DealerInfo.jsx. The old
-// component took showDeleteButton/showLabel props: AdminDash used the
-// defaults (delete enabled), SubAdminDash passed both false (read-only).
-// Same GET /dealer/full endpoint powers both — this is one role-aware page
-// instead of a component re-embedded with different props, matching the
-// CustomerInfo.jsx pattern already used elsewhere in this app.
-// Dealer role never had access to this screen in the old app (only
-// AdminDash/SubAdminDash imported it) — route stays admin/subadmin only.
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
+
 const PAGE_SIZE = 25;
 const LOAD_ERROR = "Couldn't load dealers. Please try again.";
 
@@ -29,9 +28,20 @@ const DealerInfo = () => {
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [banner, setBanner] = useState(null); // { type, text }
+  const [banner, setBanner] = useState(null);
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      return MOCK_DEALERS;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     const res = await api.get("/dealer/full");
     return Array.isArray(res.data) ? res.data : [];
   }, []);
@@ -77,7 +87,9 @@ const DealerInfo = () => {
     setDeleting(true);
     setBanner(null);
     try {
-      await api.delete(`/dealer/${encodeURIComponent(deleteTarget.id)}`);
+      if (!USE_MOCK) {
+        await api.delete(`/dealer/${encodeURIComponent(deleteTarget.id)}`);
+      }
       setData((list) => list.filter((d) => d.id !== deleteTarget.id));
       setBanner({
         type: "success",
@@ -118,7 +130,7 @@ const DealerInfo = () => {
               render: (row) => (
                 <button
                   onClick={() => setDeleteTarget(row)}
-                  className="text-muted-foreground hover:text-red-400 transition-colors"
+                  className="text-white/40 hover:text-red-400 transition-colors"
                   aria-label={`Delete dealer ${row.name || row.dealerCode}`}
                 >
                   <Trash2 size={16} />
@@ -132,23 +144,16 @@ const DealerInfo = () => {
   );
 
   return (
-    <section className="min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+    <DashboardLayout dealerName="Sub Admin">
       <div className="w-full max-w-7xl mx-auto">
-        <Link
-          to={ROLE_DASH[role] || "/"}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft size={15} /> Back to dashboard
-        </Link>
-
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-1 inline-block">
-            {ROLE_LABEL[role]}
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
+            Sub Admin
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
             Dealer Info
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-2">
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
             All registered dealers across the network.
           </p>
         </div>
@@ -165,7 +170,7 @@ const DealerInfo = () => {
               <div className="relative w-full sm:max-w-sm">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
                 />
                 <Input
                   value={search}
@@ -175,7 +180,7 @@ const DealerInfo = () => {
                   aria-label="Search dealers"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/40 font-rr tracking-[0.02em]">
                 Showing {visible.length} of {filtered.length}
                 {filtered.length !== data.length && ` (${data.length} total)`}
               </p>
@@ -196,7 +201,7 @@ const DealerInfo = () => {
               <div className="flex justify-center mt-5">
                 <button
                   onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                  className="text-sm text-accent hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
                   more
@@ -217,7 +222,7 @@ const DealerInfo = () => {
           onCancel={() => setDeleteTarget(null)}
         />
       )}
-    </section>
+    </DashboardLayout>
   );
 };
 

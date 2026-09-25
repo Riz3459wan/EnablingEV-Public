@@ -1,47 +1,64 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Search, Trash2 } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { useDealerInfo } from "../../auth/useDealerInfo";
-import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
 import useAsyncData from "../../hooks/useAsyncData";
 import { Input } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmModal from "../../components/ui/ConfirmModal";
-import { Banner, ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
+import {
+  Banner,
+  ErrorCard,
+  LoadingCard,
+} from "../../components/ui/AsyncStates";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import { MOCK_CUSTOMERS } from "../../data/mockData";
 
-// Replaces the old app's DealerCustomerInfo.jsx (dealer) and
-// DisplayCustomerInfo.jsx (admin) — they were the same table with a different
-// endpoint, so it's one role-aware page now, served on both routes:
-//   dealer -> GET /CustomerTable?dealerCode=...   (only their customers)
-//   admin  -> GET /CustomerTable/admin            (everyone, can delete)
+// ─── Toggle: set to false to use REAL API ────────────────────
+const USE_MOCK = true;
+
 const PAGE_SIZE = 25;
-const MIN_DEALER_CODE_LENGTH = 7; // same guard the old dealer screen had
+const MIN_DEALER_CODE_LENGTH = 7;
 const LOAD_ERROR = "Couldn't load customers. Please try again.";
 
 const CustomerInfo = () => {
   const { role } = useAuth();
-  const { dealerCode } = useDealerInfo();
-  const isAdmin = role === "admin";
-  const canLoad = isAdmin || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
+  const { dealerCode, dealerInfo } = useDealerInfo();
+  const isSubAdmin = role === "subadmin" || role === "admin";
+  const isDealer = role === "dealer";
+  const canLoad = isSubAdmin || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [banner, setBanner] = useState(null); // { type, text }
+  const [banner, setBanner] = useState(null);
 
   const loader = useCallback(async () => {
+    // ══════════════════════════════════════════════════════════
+    // MOCK DATA
+    // ══════════════════════════════════════════════════════════
+    if (USE_MOCK) {
+      await new Promise((r) => setTimeout(r, 400));
+      const list = isDealer
+        ? MOCK_CUSTOMERS.filter((c) => c.dealerCode === dealerCode)
+        : MOCK_CUSTOMERS;
+      return list;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // REAL API
+    // ══════════════════════════════════════════════════════════
     if (!canLoad) return [];
-    const res = isAdmin
+    const res = isSubAdmin
       ? await api.get("/CustomerTable/admin")
       : await api.get("/CustomerTable", { params: { dealerCode } });
     return Array.isArray(res.data) ? res.data : [];
-  }, [isAdmin, canLoad, dealerCode]);
+  }, [isSubAdmin, isDealer, canLoad, dealerCode]);
 
   const { data, error, loading, reload, setData } = useAsyncData(
-    ["customers", isAdmin ? "all" : dealerCode],
+    ["customers", isSubAdmin ? "all" : dealerCode],
     loader,
     LOAD_ERROR,
   );
@@ -77,7 +94,11 @@ const CustomerInfo = () => {
     setDeleting(true);
     setBanner(null);
     try {
-      await api.delete(`/CustomerTable/${encodeURIComponent(deleteTarget.id)}`);
+      if (!USE_MOCK) {
+        await api.delete(
+          `/CustomerTable/${encodeURIComponent(deleteTarget.id)}`,
+        );
+      }
       setData((list) => list.filter((c) => c.id !== deleteTarget.id));
       setBanner({
         type: "success",
@@ -93,16 +114,20 @@ const CustomerInfo = () => {
 
   const columns = useMemo(
     () => [
-      { key: "chassisNumber", label: "Chassis Number" },
-      ...(isAdmin ? [{ key: "dealerCode", label: "Dealer Code" }] : []),
+      { key: "chassisNumber", label: "Chassis Number", className: "font-mono" },
+      ...(isSubAdmin ? [{ key: "dealerCode", label: "Dealer Code" }] : []),
       { key: "name", label: "Name" },
       { key: "mobileNumber", label: "Mobile" },
       { key: "emailId", label: "Email" },
-      { key: "address", label: "Address", wrap: true },
-      { key: "pincode", label: "Pincode" },
-      { key: "state", label: "State" },
-      { key: "dist", label: "District" },
-      ...(isAdmin
+      {
+        key: "location",
+        label: "Location",
+        render: (row) =>
+          [row.dist, row.state].filter(Boolean).join(", ") ||
+          row.address ||
+          "—",
+      },
+      ...(isSubAdmin
         ? [
             {
               key: "actions",
@@ -110,7 +135,7 @@ const CustomerInfo = () => {
               render: (row) => (
                 <button
                   onClick={() => setDeleteTarget(row)}
-                  className="text-muted-foreground hover:text-red-400 transition-colors"
+                  className="text-white/40 hover:text-red-400 transition-colors"
                   aria-label={`Delete customer ${row.chassisNumber}`}
                 >
                   <Trash2 size={16} />
@@ -120,30 +145,26 @@ const CustomerInfo = () => {
           ]
         : []),
     ],
-    [isAdmin],
+    [isSubAdmin],
   );
 
-  const title = isAdmin ? "Customer Info" : "My Customers";
+  const title = isDealer ? "My Customers" : "All Customers";
 
   return (
-    <section className="min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-8">
+    <DashboardLayout
+      dealerName={isDealer ? dealerInfo?.name : "Sub Admin"}
+      dealerCode={isDealer ? dealerCode : null}
+    >
       <div className="w-full max-w-7xl mx-auto">
-        <Link
-          to={ROLE_DASH[role] || "/"}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft size={15} /> Back to dashboard
-        </Link>
-
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-widest font-semibold text-accent mb-1 inline-block">
-            {ROLE_LABEL[role]}
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.28em] font-semibold text-primary mb-2 inline-block font-rr">
+            {isDealer ? "Dealer" : "Sub Admin"}
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="font-display uppercase text-white text-2xl sm:text-3xl leading-[1.05] tracking-[-0.01em]">
             {title}
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mt-2">
-            {isAdmin
+          <p className="text-white/50 text-sm mt-2 max-w-2xl">
+            {isSubAdmin
               ? "Every customer registered against a vehicle, across all dealers."
               : "Customers registered against vehicles from your dealership."}
           </p>
@@ -151,7 +172,7 @@ const CustomerInfo = () => {
 
         {banner && <Banner type={banner.type}>{banner.text}</Banner>}
 
-        {!canLoad ? (
+        {!canLoad && !USE_MOCK ? (
           <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
         ) : loading ? (
           <LoadingCard />
@@ -163,7 +184,7 @@ const CustomerInfo = () => {
               <div className="relative w-full sm:max-w-sm">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-placeholder"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
                 />
                 <Input
                   value={search}
@@ -173,7 +194,7 @@ const CustomerInfo = () => {
                   aria-label="Search customers"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/40 font-rr tracking-[0.02em]">
                 Showing {visible.length} of {filtered.length}
                 {filtered.length !== data.length && ` (${data.length} total)`}
               </p>
@@ -194,7 +215,7 @@ const CustomerInfo = () => {
               <div className="flex justify-center mt-5">
                 <button
                   onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                  className="text-sm text-accent hover:underline"
+                  className="text-sm text-primary hover:underline"
                 >
                   Show {Math.min(PAGE_SIZE, filtered.length - visible.length)}{" "}
                   more
@@ -213,7 +234,7 @@ const CustomerInfo = () => {
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
       />
-    </section>
+    </DashboardLayout>
   );
 };
 
