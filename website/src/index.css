@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* Design tokens — EnablingEV "quiet luxury" system.                   */
+/* Inspired by premium automotive design language: layered near-black  */
+/* surfaces, restrained accents, oversized serif typography,           */
+/* generous whitespace. Brand color (Volt lime) is used sparingly as   */
+/* a signature, not as decoration.                                     */
+/* ------------------------------------------------------------------ */
+@theme {
+  /* ─── Base surfaces — layered, tonal ───────────────────────── */
+  --color-background: oklch(14% 0.008 250);      /* page bg — deep charcoal */
+  --color-foreground: oklch(98% 0.005 130);
+
+  /* Layered surfaces — each slightly lighter for depth */
+  --color-surface: oklch(18.5% 0.01 250);        /* hover, elevated */
+  --color-card: oklch(16.5% 0.009 250);          /* cards, tiles */
+
+  /* Borders — subtle but visible */
+  --color-border: oklch(26% 0.012 250);
+  --color-line: oklch(30% 0.014 250);
+
+  /* ─── Primary — Volt lime (signature) ─────────────────────── */
+  --color-primary: oklch(87% 0.2 124.12);
+  --color-primary-hover: oklch(90.86% 0.2026 125.12);
+  --color-primary-foreground: oklch(14% 0.008 250);
+
+  /* ─── Accent — muted teal ─────────────────────────────────── */
+  --color-accent: oklch(72% 0.09 200);
+  --color-accent-foreground: oklch(14% 0.008 250);
+
+  /* ─── Ember — warm copper (rare use) ──────────────────────── */
+  --color-ember: oklch(72% 0.14 55);
+  --color-ember-foreground: oklch(14% 0.008 250);
+
+  /* ─── Neutrals — deepest ink for hero/CTA ─────────────────── */
+  --color-ink: oklch(11.5% 0.008 250);
+  --color-bone: oklch(94% 0.008 80);
+  --color-stone: oklch(72% 0.008 80);
+
+  /* ─── Utility colors ──────────────────────────────────────── */
+  --color-muted-foreground: oklch(66% 0.014 217);
+  --color-placeholder: oklch(48% 0.016 216);
+  --color-destructive: oklch(65% 0.16 25);
+
+  /* ─── Typography ──────────────────────────────────────────── */
+  --font-sans: "Manrope", "Inter", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities                                                           */
+/* ------------------------------------------------------------------ */
+
+/* Faint blueprint grid — engineering motif, very subtle */
+@utility bg-ev-grid {
+  background-color: var(--color-background);
+  background-image:
+    linear-gradient(color-mix(in oklch, var(--color-line) 30%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--color-line) 30%, transparent) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-position: center top;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+/* Soft radial glow — atmospheric, not decorative */
+@utility bg-ev-glow {
+  background-image: radial-gradient(
+    ellipse at top,
+    color-mix(in oklch, var(--color-accent) 8%, transparent) 0%,
+    var(--color-background) 80%
+  );
+}
+
+/* Editorial: near-black section — deepest ink */
+@utility bg-ink {
+  background-color: var(--color-ink);
+  color: var(--color-bone);
+}
+
+/* Card surface — a visible step up from the page background */
+@utility bg-card {
+  background-color: var(--color-card);
+}
+
+/* Elevated surface — used for hover states and nested panels */
+@utility bg-surface {
+  background-color: var(--color-surface);
+}
+
+/* ------------------------------------------------------------------ */
+/* Base layer                                                          */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+
+  /* Headings — serif, tight tracking, restrained weight */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+
+  h1 { line-height: 0.98; }
+  h2 { line-height: 1.02; }
+  h3 { line-height: 1.1; }
+  h4 { line-height: 1.2; }
+
+  /* Selection — signature brand moment */
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities layer — typography + animation + interactions             */
+/* ------------------------------------------------------------------ */
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  /* Tabular figures for spec numbers */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Luxury letter-spacing for eyebrow labels */
+  .tracking-luxe {
+    letter-spacing: 0.28em;
+  }
+
+  /* ─── Range Rover-style typography scale ──────────────────── */
+
+  /* HEADLINE — main hero / section headline. ~3.5rem on desktop.
+     The "THE ORIGINAL LUXURY SUV." size. */
+  .text-headline {
+    font-size: clamp(2rem, 3.5vw, 3.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+  }
+
+  /* SUBHEAD — secondary line under a headline. ~2rem on desktop.
+     The "ALL RANGE ROVER. ALL ELECTRIC." size. */
+  .text-subhead {
+    font-size: clamp(1.375rem, 2.2vw, 2rem);
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+  }
+
+  /* PUNCH — small headline-tier text. ~1.125rem.
+     Used for CTAs, tags, small statements. */
+  .text-punch {
+    font-size: clamp(0.875rem, 1vw, 1.125rem);
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+  }
+
+  /* EYEBROW — small uppercase label above headlines. */
+  .text-eyebrow {
+    font-size: 0.6875rem; /* 11px */
+    line-height: 1;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* LEAD — body paragraph under a headline. */
+  .text-lead {
+    font-size: clamp(1rem, 1.05vw, 1.125rem);
+    line-height: 1.65;
+  }
+
+  /* ─── Animations ─────────────────────────────────────────── */
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes slow-zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
+
+  .animate-slow-zoom {
+    animation: slow-zoom 18s ease-out infinite alternate;
+  }
+
+  /* ─── Interactions ───────────────────────────────────────── */
+
+  /* Understated link with sliding underline */
+  .link-luxe {
+    position: relative;
+    display: inline-block;
+  }
+  .link-luxe::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-luxe:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
