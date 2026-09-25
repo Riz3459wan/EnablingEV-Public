@@ -11,14 +11,14 @@ const Home = () => {
   const { openVehicleEnquiry } = useModal();
 
   return (
-    <>
+    <div className="bg-background text-white">
       <Hero onExplore={() => scrollToId("vehicles")} />
       <EditorialIntro />
       <VehiclesShowcase />
       <MissionSection />
       <GalleryStrip />
       <DealerCTA />
-    </>
+    </div>
   );
 };
 

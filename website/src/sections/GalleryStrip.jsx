@@ -42,28 +42,27 @@ const GalleryStrip = memo(() => {
       id="gallery"
       className="relative bg-ink text-white overflow-hidden"
     >
-      {/* Header — left title, right link + arrows */}
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-24 lg:pt-32 pb-10 lg:pb-14">
-        <div className="flex items-end justify-between gap-6">
+      {/* ─── Header ─────────────────────────────────────────── */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pt-14 sm:pt-16 lg:pt-24 pb-6 sm:pb-8 lg:pb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 sm:gap-4">
+          {/* Left — text */}
           <div>
-            <div className="animate-fade-up flex items-center gap-3 mb-6">
-              <span className="h-px w-8 bg-primary/60" />
+            <div className="animate-fade-up flex items-center gap-3 mb-4 sm:mb-6">
+              <span className="h-px w-6 sm:w-8 bg-primary/60" />
               <span className="text-eyebrow text-white/50">
                 Inside EnablingEV
               </span>
             </div>
 
-            <h2
-              className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] max-w-xl"
-              style={{ animationDelay: "120ms" }}
-            >
+            <h2 className="animate-fade-up font-display uppercase text-white text-[clamp(1.5rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] max-w-xl">
               Moments from
               <br />
               the road.
             </h2>
           </div>
 
-          <div className="hidden md:flex items-center gap-10">
+          {/* Right — arrows (desktop) + view all (all) */}
+          <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10">
             <Link
               to="/gallery"
               className="group inline-flex items-center gap-2 text-punch uppercase text-white hover:text-primary transition-colors duration-300"
@@ -75,33 +74,35 @@ const GalleryStrip = memo(() => {
               />
             </Link>
 
-            <div className="flex items-center gap-3">
+            {/* Arrows — desktop only */}
+            <div className="hidden md:flex items-center gap-3">
               <button
                 onClick={() => scroll("prev")}
                 aria-label="Previous"
-                className="w-12 h-12 rounded-full border border-white/20 hover:border-white text-white/70 hover:text-white transition-colors duration-300 flex items-center justify-center"
+                className="w-11 h-11 lg:w-12 lg:h-12 rounded-full border border-white/20 hover:border-white text-white/70 hover:text-white transition-colors duration-300 flex items-center justify-center"
               >
-                <ArrowLeft size={18} strokeWidth={1.5} />
+                <ArrowLeft size={16} strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => scroll("next")}
                 aria-label="Next"
-                className="w-12 h-12 rounded-full border border-white/20 hover:border-white text-white/70 hover:text-white transition-colors duration-300 flex items-center justify-center"
+                className="w-11 h-11 lg:w-12 lg:h-12 rounded-full border border-white/20 hover:border-white text-white/70 hover:text-white transition-colors duration-300 flex items-center justify-center"
               >
-                <ArrowRightIcon size={18} strokeWidth={1.5} />
+                <ArrowRightIcon size={16} strokeWidth={1.5} />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Horizontal scroll strip */}
+      {/* ─── Horizontal scroll strip ────────────────────────── */}
       <div className="relative">
         <div
           ref={stripRef}
-          className="flex gap-2 sm:gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-12 lg:pb-16 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex gap-2 sm:gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-12 sm:pb-14 lg:pb-20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <div className="shrink-0 w-6 sm:w-10 lg:w-16" aria-hidden />
+          {/* Left spacer — matches page padding */}
+          <div className="shrink-0 w-4 sm:w-6 md:w-10 lg:w-16" aria-hidden />
 
           {IMAGES.map((img, i) => (
             <Link
@@ -109,7 +110,7 @@ const GalleryStrip = memo(() => {
               to="/gallery"
               className="relative shrink-0 snap-start overflow-hidden group"
             >
-              <div className="w-[78vw] sm:w-[52vw] lg:w-[34vw] xl:w-[28vw] h-[60vh] sm:h-[65vh] lg:h-[72vh]">
+              <div className="w-[82vw] sm:w-[60vw] md:w-[45vw] lg:w-[34vw] xl:w-[28vw] h-[45vh] sm:h-[55vh] lg:h-[70vh]">
                 <ImageWithFallback
                   src={img.src}
                   alt={img.alt}
@@ -120,15 +121,16 @@ const GalleryStrip = memo(() => {
             </Link>
           ))}
 
-          <div className="shrink-0 w-6 sm:w-10 lg:w-16" aria-hidden />
+          {/* Right spacer */}
+          <div className="shrink-0 w-4 sm:w-6 md:w-10 lg:w-16" aria-hidden />
         </div>
       </div>
 
-      {/* Mobile "View all" */}
-      <div className="md:hidden flex justify-center pb-16">
+      {/* ─── Mobile "View all" (bottom, for phones without header link visible) ─── */}
+      <div className="md:hidden flex justify-center pb-14 sm:pb-16">
         <Link
           to="/gallery"
-          className="group inline-flex items-center gap-2 text-punch uppercase text-white hover:text-primary transition-colors duration-300"
+          className="group inline-flex items-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300"
         >
           <span className="link-luxe">View Full Gallery</span>
           <ArrowRight

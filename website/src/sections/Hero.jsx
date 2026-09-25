@@ -9,9 +9,9 @@ const Hero = memo(({ onExplore }) => {
   return (
     <section
       id="home"
-      className="relative w-full min-h-screen overflow-hidden bg-ink text-white flex flex-col"
+      className="relative w-full min-h-[70vh] lg:min-h-[80vh] overflow-hidden bg-ink text-white flex flex-col"
     >
-      {/* Background VIDEO */}
+      {/* Background VIDEO — Range Rover style */}
       <div className="absolute inset-0 z-0">
         <video
           className="w-full h-full object-cover"
@@ -25,7 +25,7 @@ const Hero = memo(({ onExplore }) => {
         </video>
       </div>
 
-      {/* Cinematic overlays — subtle, Range Rover style */}
+      {/* Cinematic overlays */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-r from-ink/60 via-ink/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
@@ -33,19 +33,17 @@ const Hero = memo(({ onExplore }) => {
 
       {/* Content */}
       <div className="relative z-20 flex-1 flex items-center">
-        <div className="max-w-[1600px] w-full mx-auto px-6 sm:px-10 lg:px-16 pt-32 pb-24 lg:pt-40 lg:pb-32">
+        <div className="max-w-[1600px] w-full mx-auto px-6 sm:px-10 lg:px-16 pt-24 pb-16 lg:pt-28 lg:pb-20">
           <div className="max-w-2xl">
-            {/* Headline */}
             <h1
-              className="animate-fade-up font-display uppercase text-white mb-3 text-[clamp(1.875rem,3vw,2.75rem)] leading-[1.02] tracking-[-0.01em]"
+              className="animate-fade-up text-display-upper text-white mb-3 text-[clamp(1.875rem,3vw,2.75rem)] leading-[1.02]"
               style={{ animationDelay: "120ms" }}
             >
               JHATPAT JIO
             </h1>
 
-            {/* Subhead */}
             <p
-              className="animate-fade-up font-display uppercase text-white/85 mb-12 text-[clamp(1.5rem,2.2vw,2rem)] leading-[1.15] tracking-[0.02em]"
+              className="animate-fade-up text-display-upper text-white/85 mb-12 text-[clamp(1.5rem,2.2vw,2rem)] leading-[1.15]"
               style={{ animationDelay: "220ms" }}
             >
               The Original
@@ -53,7 +51,6 @@ const Hero = memo(({ onExplore }) => {
               Electric Rickshaw.
             </p>
 
-            {/* CTAs */}
             <div
               className="animate-fade-up flex flex-wrap items-center gap-6"
               style={{ animationDelay: "320ms" }}

@@ -1,29 +1,35 @@
 <!doctype html>
-<html lang="en-IN">
+<html lang="en-IN" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <meta name="theme-color" content="#ffffff" />
-    <meta name="color-scheme" content="light" />
 
+    <!-- Mobile browser theme matching the dark background -->
+    <meta name="theme-color" content="#0d0e10" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Title, description, canonical, Open Graph and JSON-LD are generated per
+         page from src/seo/routes.js (see vite-plugins/seo-static.js). -->
+
+    <!-- Fonts — Playfair Display (serif display) + Inter (UI) + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
-    <title>EVConnect — India's Leading EV Marketplace</title>
+    <title>EnablingEV — India-ready Electric Mobility</title>
   </head>
-  <body class="bg-[#f8fafc] text-[#0f172a] selection:bg-[#10b981] selection:text-white">
+  <body class="bg-[#0d0e10] text-white selection:bg-[#b9e936] selection:text-[#0d0e10]">
     <div id="root"></div>
     <noscript>
       <p style="padding:24px;font-family:sans-serif">
-        EVConnect — India's leading EV marketplace. Please enable JavaScript to use this website.
+        Enabling E-Vehicle Pvt. Ltd. — JhatPat Jio electric rickshaws and cargo
+        vehicles. Please enable JavaScript to use this website.
       </p>
     </noscript>
     <script type="module" src="/src/main.jsx"></script>

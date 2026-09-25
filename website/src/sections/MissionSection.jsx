@@ -28,49 +28,39 @@ const MissionSection = memo(() => {
       id="mission"
       className="relative bg-ink text-white overflow-hidden"
     >
-      {/* Full-bleed image */}
-      <div className="relative w-full h-[55vh] sm:h-[65vh] lg:h-[75vh]">
+      {/* ─── Full-bleed image ───────────────────────────────── */}
+      <div className="relative w-full h-[45vh] sm:h-[55vh] lg:h-[70vh]">
         <ImageWithFallback
           src={aboutImg}
           alt="Engineered in India"
           label="Engineered in India"
           className="w-full h-full object-cover"
         />
-        {/* Gradient — only bottom fade, top is clear */}
+        {/* Bottom fade into bg */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink" />
       </div>
 
-      {/* Content — pulls up over image (Range Rover style) */}
-      <div className="relative max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 -mt-32 sm:-mt-40 lg:-mt-48">
+      {/* ─── Content — pulled up over image ─────────────────── */}
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 -mt-24 sm:-mt-32 lg:-mt-48">
         <div className="max-w-3xl lg:pl-8 xl:pl-16">
-          {/* Eyebrow */}
-          <div className="animate-fade-up flex items-center gap-3 mb-8">
-            <span className="h-px w-8 bg-primary/60" />
+          <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
+            <span className="h-px w-6 sm:w-8 bg-primary/60" />
             <span className="text-eyebrow text-white/60">Our Mission</span>
           </div>
 
-          {/* Headline */}
-          <h2
-            className="animate-fade-up font-display uppercase text-white text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.02] tracking-[-0.01em] mb-10"
-            style={{ animationDelay: "120ms" }}
-          >
+          <h2 className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4vw,3.75rem)] leading-[1.02] tracking-[-0.01em] mb-6 sm:mb-8">
             Mobility That
             <br />
             Enables Progress.
           </h2>
 
-          {/* Body */}
-          <p
-            className="animate-fade-up text-lead text-white/65 mb-12 max-w-xl"
-            style={{ animationDelay: "220ms" }}
-          >
+          <p className="animate-fade-up text-lead text-white/65 mb-8 sm:mb-10 max-w-xl">
             EnablingEV builds practical electric vehicles for the people who
             keep India moving. Our focus is simple: dependable engineering,
             economical ownership, and support that lasts beyond the sale.
           </p>
 
-          {/* Read link */}
-          <div className="animate-fade-up" style={{ animationDelay: "320ms" }}>
+          <div className="animate-fade-up">
             <Link
               to="/about"
               className="group inline-flex items-center gap-2 text-punch uppercase text-white hover:text-primary transition-colors duration-300"
@@ -85,17 +75,17 @@ const MissionSection = memo(() => {
         </div>
       </div>
 
-      {/* Pillars — separate section, below the pulled-up block */}
-      <div className="relative max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pb-24 lg:pb-32">
-        <div className="grid sm:grid-cols-3 gap-10 sm:gap-8 lg:gap-16 border-t border-white/[0.08] pt-12 mt-24 lg:mt-32">
-          {PILLARS.map(({ icon: Icon, title, desc }, i) => (
-            <div
-              key={title}
-              className="animate-fade-up"
-              style={{ animationDelay: `${400 + i * 80}ms` }}
-            >
-              <Icon size={22} className="text-primary mb-6" strokeWidth={1.5} />
-              <h3 className="font-display text-2xl sm:text-3xl text-white mb-3 tracking-[-0.01em]">
+      {/* ─── Pillars ────────────────────────────────────────── */}
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pb-14 sm:pb-16 lg:pb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 md:gap-8 lg:gap-16 border-t border-white/[0.08] pt-10 sm:pt-12 mt-12 sm:mt-16 lg:mt-20">
+          {PILLARS.map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="animate-fade-up">
+              <Icon
+                size={20}
+                className="text-primary mb-4 sm:mb-6"
+                strokeWidth={1.5}
+              />
+              <h3 className="font-display text-xl sm:text-2xl lg:text-3xl text-white mb-2 sm:mb-3 tracking-[-0.01em]">
                 {title}
               </h3>
               <p className="text-white/55 text-sm sm:text-base leading-relaxed">

@@ -8,7 +8,6 @@ import { Phone, Mail, ArrowRight } from "lucide-react";
 import api from "../../api/client";
 import { OFFICES, PHONES, EMAIL } from "../../data/company";
 
-// Fix Leaflet's default icon paths under Vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -19,11 +18,12 @@ L.Icon.Default.mergeOptions({
 const generateCaptcha = () =>
   Math.floor(1000 + Math.random() * 9000).toString();
 
-// Range Rover-style underline input
 const LuxeField = ({ label, error, children, className = "" }) => (
   <div className={className}>
     {label && (
-      <label className="block text-eyebrow text-white/40 mb-3">{label}</label>
+      <label className="block text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/40 mb-2 sm:mb-3">
+        {label}
+      </label>
     )}
     {children}
     {error && (
@@ -33,7 +33,7 @@ const LuxeField = ({ label, error, children, className = "" }) => (
 );
 
 const inputClass =
-  "w-full bg-transparent text-white placeholder:text-white/30 outline-none text-sm sm:text-base py-3 border-b border-white/15 focus:border-primary transition-colors duration-300";
+  "w-full bg-transparent text-white placeholder:text-white/30 outline-none text-sm sm:text-base py-2.5 sm:py-3 border-b border-white/15 focus:border-primary transition-colors duration-300";
 
 const Contact = memo(() => {
   const [form, setForm] = useState({
@@ -50,7 +50,6 @@ const Contact = memo(() => {
   const [captchaError, setCaptchaError] = useState(false);
   const [status, setStatus] = useState("idle");
 
-  // Rotate captcha every minute
   useEffect(() => {
     const interval = setInterval(
       () => setCaptchaValue(generateCaptcha()),
@@ -67,7 +66,6 @@ const Contact = memo(() => {
     setForm((f) => ({ ...f, [field]: value }));
   };
 
-  // Pincode -> state/district autofill
   useEffect(() => {
     if (form.pincode.length !== 6) return undefined;
     let cancelled = false;
@@ -81,9 +79,7 @@ const Contact = memo(() => {
           const { State, District } = data.PostOffice[0];
           setForm((f) => ({ ...f, state: State, district: District }));
         }
-      } catch {
-        // Non-critical enrichment — silently ignore
-      }
+      } catch {}
     })();
     return () => {
       cancelled = true;
@@ -108,19 +104,21 @@ const Contact = memo(() => {
 
   return (
     <div className="bg-ink text-white">
-      {/* ─── 1. HERO ────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="relative bg-ink border-b border-white/[0.06]">
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/[0.03] blur-[160px]" />
+        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[500px] sm:w-[800px] h-[300px] sm:h-[400px] rounded-full bg-primary/[0.03] blur-[140px] sm:blur-[160px]" />
 
-        <div className="relative max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-40 lg:pt-48 pb-20 lg:pb-28 text-center">
-          <div className="animate-fade-up flex items-center justify-center gap-3 mb-8">
-            <span className="h-px w-8 bg-primary/60" />
-            <span className="text-eyebrow text-white/50">Get In Touch</span>
-            <span className="h-px w-8 bg-primary/60" />
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pt-32 sm:pt-40 lg:pt-48 pb-14 sm:pb-20 lg:pb-28 text-center">
+          <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+            <span className="h-px w-6 sm:w-8 bg-primary/60" />
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+              Get In Touch
+            </span>
+            <span className="h-px w-6 sm:w-8 bg-primary/60" />
           </div>
 
           <h1
-            className="animate-fade-up font-display uppercase text-white text-[clamp(2rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em] mb-8 max-w-4xl mx-auto text-balance"
+            className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em] mb-6 sm:mb-8 max-w-4xl mx-auto text-balance"
             style={{ animationDelay: "120ms" }}
           >
             Find Us.
@@ -138,25 +136,27 @@ const Contact = memo(() => {
         </div>
       </section>
 
-      {/* ─── 2. OFFICES + MAP ──────────────────────────────── */}
+      {/* Offices + Map */}
       <section className="relative bg-ink border-b border-white/[0.06]">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-20 lg:py-28">
-          <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12 lg:gap-20 items-start">
-            {/* Left — Offices list */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-14 sm:py-20 lg:py-28">
+          <div className="grid lg:grid-cols-[1fr_1.5fr] gap-10 lg:gap-20 items-start">
+            {/* Offices */}
             <div>
-              <div className="animate-fade-up flex items-center gap-3 mb-10">
-                <span className="h-px w-8 bg-primary/60" />
-                <span className="text-eyebrow text-white/50">Our Offices</span>
+              <div className="animate-fade-up flex items-center gap-3 mb-8 sm:mb-10">
+                <span className="h-px w-6 sm:w-8 bg-primary/60" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                  Our Offices
+                </span>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {OFFICES.map((office, i) => (
                   <div
                     key={office.label}
-                    className="animate-fade-up pb-8 border-b border-white/[0.06] last:border-b-0"
+                    className="animate-fade-up pb-6 sm:pb-8 border-b border-white/[0.06] last:border-b-0"
                     style={{ animationDelay: `${100 + i * 80}ms` }}
                   >
-                    <p className="text-eyebrow text-primary/70 mb-3">
+                    <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-primary/70 mb-2 sm:mb-3">
                       {office.label}
                     </p>
                     <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-sm">
@@ -167,13 +167,13 @@ const Contact = memo(() => {
               </div>
 
               <div
-                className="animate-fade-up mt-12 pt-8 border-t border-white/[0.08]"
+                className="animate-fade-up mt-10 pt-6 sm:pt-8 border-t border-white/[0.08]"
                 style={{ animationDelay: "400ms" }}
               >
-                <ul className="space-y-5 text-sm sm:text-base">
+                <ul className="space-y-4 sm:space-y-5 text-sm sm:text-base">
                   <li className="flex items-start gap-3">
                     <Phone
-                      size={16}
+                      size={15}
                       className="text-primary/70 shrink-0 mt-1"
                     />
                     <span className="flex flex-col gap-1">
@@ -189,10 +189,10 @@ const Contact = memo(() => {
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Mail size={16} className="text-primary/70 shrink-0 mt-1" />
+                    <Mail size={15} className="text-primary/70 shrink-0 mt-1" />
                     <a
                       href={`mailto:${EMAIL}`}
-                      className="link-luxe text-white/70 hover:text-white transition-colors duration-300"
+                      className="link-luxe text-white/70 hover:text-white transition-colors duration-300 break-all"
                     >
                       {EMAIL}
                     </a>
@@ -201,9 +201,9 @@ const Contact = memo(() => {
               </div>
             </div>
 
-            {/* Right — Map */}
+            {/* Map */}
             <div
-              className="animate-fade-up relative border border-white/[0.06] overflow-hidden h-[500px] lg:h-[700px]"
+              className="animate-fade-up relative border border-white/[0.06] overflow-hidden h-[350px] sm:h-[450px] lg:h-[700px]"
               style={{ animationDelay: "200ms" }}
             >
               <MapContainer
@@ -233,21 +233,20 @@ const Contact = memo(() => {
         </div>
       </section>
 
-      {/* ─── 3. CONTACT FORM ──────────────────────────────── */}
+      {/* Form */}
       <section className="relative bg-ink">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-20 lg:py-28">
-          <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12 lg:gap-20 items-start">
-            {/* Left — heading */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-14 sm:py-20 lg:py-28">
+          <div className="grid lg:grid-cols-[1fr_1.5fr] gap-10 lg:gap-20 items-start">
             <div className="max-w-md">
-              <div className="animate-fade-up flex items-center gap-3 mb-8">
-                <span className="h-px w-8 bg-primary/60" />
-                <span className="text-eyebrow text-white/50">
+              <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
+                <span className="h-px w-6 sm:w-8 bg-primary/60" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
                   Send A Message
                 </span>
               </div>
 
               <h2
-                className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-6"
+                className="animate-fade-up font-display uppercase text-white text-[clamp(1.5rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-5 sm:mb-6"
                 style={{ animationDelay: "120ms" }}
               >
                 We'd Love
@@ -267,14 +266,13 @@ const Contact = memo(() => {
               </p>
             </div>
 
-            {/* Right — form */}
             <div
               className="animate-fade-up"
               style={{ animationDelay: "200ms" }}
             >
               {status === "success" ? (
-                <div className="p-10 lg:p-16 border border-white/[0.08] text-center">
-                  <p className="font-display text-2xl uppercase text-white mb-4">
+                <div className="p-8 sm:p-10 lg:p-16 border border-white/[0.08] text-center">
+                  <p className="font-display text-xl sm:text-2xl uppercase text-white mb-4">
                     Message Sent.
                   </p>
                   <p className="text-white/60 text-sm max-w-md mx-auto">
@@ -283,8 +281,12 @@ const Contact = memo(() => {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-                  <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-6 sm:space-y-8"
+                  noValidate
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                     <LuxeField label="Full Name">
                       <input
                         type="text"
@@ -307,7 +309,7 @@ const Contact = memo(() => {
                     </LuxeField>
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                     <LuxeField label="Contact Number">
                       <input
                         type="tel"
@@ -330,7 +332,7 @@ const Contact = memo(() => {
                     </LuxeField>
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
                     <LuxeField label="Pin Code">
                       <input
                         type="text"
@@ -375,11 +377,11 @@ const Contact = memo(() => {
                     </p>
                   )}
 
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={status === "submitting"}
-                      className="group inline-flex items-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-8 py-4 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group inline-flex items-center justify-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {status === "submitting" ? "Sending..." : "Send Message"}
                       <ArrowRight

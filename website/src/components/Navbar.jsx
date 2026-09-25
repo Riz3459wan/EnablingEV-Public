@@ -19,7 +19,7 @@ const desktopLinkClass = ({ isActive }) =>
    ${isActive ? "text-white after:origin-left after:scale-x-100" : "text-white/70 hover:text-white"}`;
 
 const mobileLinkClass = ({ isActive }) =>
-  `block py-3 text-2xl font-display tracking-tight transition-colors duration-300
+  `block py-3.5 text-xl sm:text-2xl font-display tracking-tight transition-colors duration-300 border-b border-white/[0.05]
    ${isActive ? "text-white" : "text-white/60 hover:text-white"}`;
 
 const Navbar = memo(({ onOpenDealer }) => {
@@ -74,15 +74,15 @@ const Navbar = memo(({ onOpenDealer }) => {
             : "bg-transparent border-b border-transparent"
         }`}
       >
-        <nav className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="flex justify-between items-center h-20 lg:h-24 transition-all duration-500">
+        <nav className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
+          <div className="flex justify-between items-center h-16 sm:h-18 lg:h-24 transition-all duration-500">
             {/* Wordmark */}
             <Link
               to={isPortal ? ROLE_DASH[role] : "/"}
-              className="flex items-center gap-3 text-white group"
+              className="flex items-center gap-2 sm:gap-3 text-white group min-w-0"
             >
-              <BrandMark className="h-8 w-auto transition-transform duration-500 group-hover:scale-105" />
-              <span className="font-display text-2xl sm:text-[26px] tracking-tight text-white">
+              <BrandMark className="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105 shrink-0" />
+              <span className="font-display text-lg sm:text-xl lg:text-2xl tracking-tight text-white truncate">
                 Enabling<span className="text-primary">EV</span>
               </span>
             </Link>
@@ -101,7 +101,7 @@ const Navbar = memo(({ onOpenDealer }) => {
               ))}
             </div>
 
-            {/* Right side actions */}
+            {/* Right side actions — desktop only */}
             <div className="hidden lg:flex items-center gap-5">
               {isPortal ? (
                 <>
@@ -172,7 +172,7 @@ const Navbar = memo(({ onOpenDealer }) => {
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X size={26} /> : <Menu size={26} />}
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </nav>
@@ -186,35 +186,34 @@ const Navbar = memo(({ onOpenDealer }) => {
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="h-full flex flex-col pt-28 pb-10 px-8">
+        <div className="h-full flex flex-col pt-24 sm:pt-28 pb-8 px-6 sm:px-8 overflow-y-auto">
           {isPortal && (
-            <span className="text-[11px] uppercase tracking-luxe font-medium text-primary mb-8">
+            <span className="text-[10px] uppercase tracking-luxe font-medium text-primary mb-6">
               {ROLE_LABEL[role]} Portal
             </span>
           )}
 
-          <nav className="flex-1 flex flex-col gap-1">
-            {links.map((link, i) => (
+          <nav className="flex-1 flex flex-col">
+            {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === "/"}
                 onClick={() => setMobileOpen(false)}
                 className={mobileLinkClass}
-                style={{ animationDelay: `${i * 40}ms` }}
               >
                 {link.label}
               </NavLink>
             ))}
           </nav>
 
-          <div className="pt-8 border-t border-white/[0.08] space-y-4">
+          <div className="pt-8 mt-6 border-t border-white/[0.08] space-y-3">
             {isPortal ? (
               <>
                 <Link
                   to="/"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-[11px] uppercase tracking-luxe font-medium text-primary"
+                  className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-luxe font-medium text-primary border border-primary/30 rounded-full py-3.5"
                 >
                   <Globe size={13} /> View Public Site
                 </Link>
@@ -230,7 +229,7 @@ const Navbar = memo(({ onOpenDealer }) => {
                 <Link
                   to="/DealerForm"
                   onClick={() => setMobileOpen(false)}
-                  className="block text-center text-[11px] uppercase tracking-luxe font-medium text-white border border-white/25 rounded-full py-3.5"
+                  className="block text-center text-[11px] uppercase tracking-luxe font-medium text-white bg-white/[0.06] hover:bg-white/[0.1] border border-white/20 rounded-full py-3.5 transition-colors"
                 >
                   Become a Dealer
                 </Link>

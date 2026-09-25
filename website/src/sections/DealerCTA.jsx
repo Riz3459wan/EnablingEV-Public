@@ -2,7 +2,7 @@ import { memo } from "react";
 import { useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
 import ImageWithFallback from "../components/ImageWithFallback";
-import dealerImg from "../assets/gallery/Rikshaw.webp";
+import dealerImg from "../assets/gallery/Rikshaw4.webp";
 
 const DealerCTA = memo(() => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const DealerCTA = memo(() => {
       id="dealer"
       className="relative w-full overflow-hidden bg-ink text-white"
     >
-      {/* Full-bleed background image */}
+      {/* ─── Full-bleed background image ────────────────────── */}
       <div className="absolute inset-0 z-0">
         <ImageWithFallback
           src={dealerImg}
@@ -20,25 +20,22 @@ const DealerCTA = memo(() => {
           label="Dealer network"
           className="w-full h-full object-cover"
         />
-        {/* Dark overlays — lighter overall, directional on the text side */}
-        <div className="absolute inset-0 bg-ink/55" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/30 to-transparent" />
+        {/* Overlays — layered for text readability */}
+        <div className="absolute inset-0 bg-ink/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/50 to-transparent" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-32 lg:py-48">
+      {/* ─── Content ────────────────────────────────────────── */}
+      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-20 sm:py-24 lg:py-32">
         <div className="max-w-3xl lg:pl-8 xl:pl-16">
           {/* Eyebrow */}
-          <div className="animate-fade-up flex items-center gap-3 mb-10">
-            <span className="h-px w-10 bg-primary" />
+          <div className="animate-fade-up flex items-center gap-3 mb-8 sm:mb-10">
+            <span className="h-px w-6 sm:w-10 bg-primary" />
             <span className="text-eyebrow text-white/60">Dealer Network</span>
           </div>
 
-          {/* Headline — Range Rover scale */}
-          <h2
-            className="animate-fade-up font-display uppercase text-white text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.02] tracking-[-0.01em] mb-8"
-            style={{ animationDelay: "120ms" }}
-          >
+          {/* Heading */}
+          <h2 className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4vw,3.75rem)] leading-[1.02] tracking-[-0.01em] mb-6 sm:mb-8">
             Bring Electric
             <br />
             Mobility To
@@ -47,23 +44,17 @@ const DealerCTA = memo(() => {
           </h2>
 
           {/* Body */}
-          <p
-            className="animate-fade-up text-lead text-white/65 mb-12 max-w-xl"
-            style={{ animationDelay: "220ms" }}
-          >
+          <p className="animate-fade-up text-lead text-white/65 mb-10 sm:mb-12 max-w-xl">
             Partner with EnablingEV to introduce practical electric vehicles to
             your market — with product guidance, business support, and a
             platform ready for the future.
           </p>
 
-          {/* CTA + link */}
-          <div
-            className="animate-fade-up flex flex-wrap items-center gap-8 sm:gap-12"
-            style={{ animationDelay: "320ms" }}
-          >
+          {/* CTAs */}
+          <div className="animate-fade-up flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 lg:gap-12">
             <button
               onClick={() => navigate("/DealerForm")}
-              className="group inline-flex items-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-8 py-4 rounded-full"
+              className="group inline-flex items-center justify-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full w-full sm:w-auto"
             >
               Become a Dealer
               <ArrowRight
@@ -74,7 +65,7 @@ const DealerCTA = memo(() => {
 
             <button
               onClick={() => navigate("/contact")}
-              className="group inline-flex items-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300"
+              className="group inline-flex items-center justify-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300 w-full sm:w-auto py-2"
             >
               <span className="link-luxe">Talk to Our Team</span>
             </button>

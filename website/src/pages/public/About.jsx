@@ -7,13 +7,12 @@ import heroImg from "../../assets/products/F2SS1.webp";
 import msImg from "../../assets/products/MS1.webp";
 
 // About — Range Rover editorial treatment.
-// Structure: full-bleed hero → alternating chapters → pull-quote → closing CTA.
-// All serif, uppercase eyebrows, generous whitespace, thin dividers.
+// Hero → Chapter 1 (image left) → Pull-quote → Chapter 2 (image right) → Closing CTA.
 const About = memo(() => {
   return (
     <div className="bg-ink text-white">
       {/* ─── 1. HERO — full-bleed image, one-line statement ──────── */}
-      <section className="relative w-full h-[70vh] sm:h-[80vh] lg:h-screen overflow-hidden">
+      <section className="relative w-full h-[60vh] sm:h-[75vh] lg:h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
           <ImageWithFallback
             src={aboutImg}
@@ -31,19 +30,19 @@ const About = memo(() => {
 
         {/* Content — bottom-left */}
         <div className="relative z-20 h-full flex items-end">
-          <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pb-20 lg:pb-28">
+          <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pb-12 sm:pb-16 lg:pb-28">
             <div className="max-w-3xl">
               {/* Eyebrow */}
-              <div className="animate-fade-up flex items-center gap-3 mb-8">
-                <span className="h-px w-10 bg-primary" />
-                <span className="text-eyebrow text-white/70">
+              <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
+                <span className="h-px w-6 sm:w-10 bg-primary" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/70">
                   About EnablingEV
                 </span>
               </div>
 
               {/* Headline */}
               <h1
-                className="animate-fade-up font-display uppercase text-white text-[clamp(2rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em]"
+                className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em]"
                 style={{ animationDelay: "120ms" }}
               >
                 Guided By Purpose.
@@ -57,10 +56,10 @@ const About = memo(() => {
 
       {/* ─── 2. CHAPTER 1 — image left, text right ─────────────── */}
       <section className="relative bg-ink">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
             {/* Image */}
-            <div className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] overflow-hidden">
+            <div className="relative h-[40vh] sm:h-[50vh] lg:h-[70vh] overflow-hidden">
               <ImageWithFallback
                 src={heroImg}
                 alt="JhatPat Jio electric rickshaw"
@@ -71,15 +70,15 @@ const About = memo(() => {
 
             {/* Text */}
             <div className="max-w-xl lg:pl-4 xl:pl-8">
-              <div className="animate-fade-up flex items-center gap-3 mb-8">
-                <span className="h-px w-8 bg-primary/60" />
-                <span className="text-eyebrow text-white/50">
+              <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
+                <span className="h-px w-6 sm:w-8 bg-primary/60" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
                   The Beginning
                 </span>
               </div>
 
               <h2
-                className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-8"
+                className="animate-fade-up font-display uppercase text-white text-[clamp(1.5rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-6 sm:mb-8"
                 style={{ animationDelay: "120ms" }}
               >
                 A Pioneering Force
@@ -90,7 +89,7 @@ const About = memo(() => {
               </h2>
 
               <div
-                className="animate-fade-up space-y-5 text-white/65 text-lead"
+                className="animate-fade-up space-y-4 sm:space-y-5 text-white/65 text-lead"
                 style={{ animationDelay: "220ms" }}
               >
                 <p>
@@ -115,18 +114,20 @@ const About = memo(() => {
 
       {/* ─── 3. PULL-QUOTE — centered serif statement ──────────── */}
       <section className="relative bg-ink border-y border-white/[0.06]">
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/[0.03] blur-[160px]" />
+        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[500px] sm:w-[800px] h-[300px] sm:h-[400px] rounded-full bg-primary/[0.03] blur-[140px] sm:blur-[160px]" />
 
-        <div className="relative max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-28 lg:py-40">
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-40">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="animate-fade-up flex items-center justify-center gap-3 mb-10">
-              <span className="h-px w-8 bg-primary/60" />
-              <span className="text-eyebrow text-white/50">Our Belief</span>
-              <span className="h-px w-8 bg-primary/60" />
+            <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-10">
+              <span className="h-px w-6 sm:w-8 bg-primary/60" />
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                Our Belief
+              </span>
+              <span className="h-px w-6 sm:w-8 bg-primary/60" />
             </div>
 
             <p
-              className="animate-fade-up font-display text-white text-[clamp(1.5rem,2.6vw,2.25rem)] leading-[1.4] tracking-[-0.015em] text-balance"
+              className="animate-fade-up font-display text-white text-[clamp(1.25rem,2.6vw,2.25rem)] leading-[1.45] sm:leading-[1.4] tracking-[-0.015em] text-balance"
               style={{ animationDelay: "120ms" }}
             >
               At Enabling E-Vehicle, we believe transportation should be
@@ -140,17 +141,19 @@ const About = memo(() => {
 
       {/* ─── 4. CHAPTER 2 — text left, image right ─────────────── */}
       <section className="relative bg-ink">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-24 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Text — first in DOM for lg, second for mobile */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+            {/* Text — first on desktop */}
             <div className="max-w-xl lg:order-1">
-              <div className="animate-fade-up flex items-center gap-3 mb-8">
-                <span className="h-px w-8 bg-primary/60" />
-                <span className="text-eyebrow text-white/50">The Journey</span>
+              <div className="animate-fade-up flex items-center gap-3 mb-6 sm:mb-8">
+                <span className="h-px w-6 sm:w-8 bg-primary/60" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                  The Journey
+                </span>
               </div>
 
               <h2
-                className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-8"
+                className="animate-fade-up font-display uppercase text-white text-[clamp(1.5rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-6 sm:mb-8"
                 style={{ animationDelay: "120ms" }}
               >
                 Over A Decade
@@ -161,7 +164,7 @@ const About = memo(() => {
               </h2>
 
               <div
-                className="animate-fade-up space-y-5 text-white/65 text-lead"
+                className="animate-fade-up space-y-4 sm:space-y-5 text-white/65 text-lead"
                 style={{ animationDelay: "220ms" }}
               >
                 <p>
@@ -179,7 +182,7 @@ const About = memo(() => {
 
               {/* Stats — thin dividers */}
               <div
-                className="animate-fade-up grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/[0.08]"
+                className="animate-fade-up grid grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/[0.08]"
                 style={{ animationDelay: "320ms" }}
               >
                 {[
@@ -188,17 +191,19 @@ const About = memo(() => {
                   { value: "50+", label: "Dealers" },
                 ].map((s) => (
                   <div key={s.label}>
-                    <p className="font-display tabular text-3xl sm:text-4xl text-white leading-none">
+                    <p className="font-display tabular text-2xl sm:text-3xl lg:text-4xl text-white leading-none">
                       {s.value}
                     </p>
-                    <p className="text-eyebrow text-white/40 mt-3">{s.label}</p>
+                    <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-white/40 mt-2 sm:mt-3">
+                      {s.label}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Image */}
-            <div className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] overflow-hidden lg:order-2">
+            {/* Image — second on desktop, stacked on mobile */}
+            <div className="relative h-[40vh] sm:h-[50vh] lg:h-[70vh] overflow-hidden lg:order-2">
               <ImageWithFallback
                 src={msImg}
                 alt="JhatPat Fine MS electric rickshaw"
@@ -212,28 +217,30 @@ const About = memo(() => {
 
       {/* ─── 5. FINAL CTA — closing statement ──────────────────── */}
       <section className="relative bg-ink border-t border-white/[0.06]">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-24 lg:py-32">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-16 sm:py-20 lg:py-32">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="animate-fade-up flex items-center justify-center gap-3 mb-10">
-              <span className="h-px w-8 bg-primary/60" />
-              <span className="text-eyebrow text-white/50">Keep Exploring</span>
-              <span className="h-px w-8 bg-primary/60" />
+            <div className="animate-fade-up flex items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
+              <span className="h-px w-6 sm:w-8 bg-primary/60" />
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-white/50">
+                Keep Exploring
+              </span>
+              <span className="h-px w-6 sm:w-8 bg-primary/60" />
             </div>
 
             <h2
-              className="animate-fade-up font-display uppercase text-white text-[clamp(1.75rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-12"
+              className="animate-fade-up font-display uppercase text-white text-[clamp(1.5rem,3.2vw,2.75rem)] leading-[1.05] tracking-[-0.01em] mb-8 sm:mb-12"
               style={{ animationDelay: "120ms" }}
             >
               Discover The JhatPat Jio Range.
             </h2>
 
             <div
-              className="animate-fade-up flex flex-wrap items-center justify-center gap-6 sm:gap-10"
+              className="animate-fade-up flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-10"
               style={{ animationDelay: "220ms" }}
             >
               <Link
                 to="/product"
-                className="group inline-flex items-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-8 py-4 rounded-full"
+                className="group inline-flex items-center justify-center gap-3 text-punch uppercase font-medium text-white border border-white/40 hover:border-white hover:bg-white hover:text-ink transition-all duration-500 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full w-full sm:w-auto"
               >
                 Explore Vehicles
                 <ArrowRight
@@ -244,7 +251,7 @@ const About = memo(() => {
 
               <Link
                 to="/gallery"
-                className="group inline-flex items-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300"
+                className="group inline-flex items-center justify-center gap-2 text-punch uppercase text-white/70 hover:text-white transition-colors duration-300 w-full sm:w-auto py-2"
               >
                 <span className="link-luxe">View Gallery</span>
                 <ArrowRight

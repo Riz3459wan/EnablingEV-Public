@@ -46,17 +46,17 @@ const VehiclesShowcase = memo(() => {
       id="vehicles"
       className="relative bg-ink text-white overflow-hidden"
     >
-      {/* Tab switcher */}
-      <div className="relative max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-24 lg:pt-32">
-        <div className="animate-fade-up flex items-center justify-center gap-10 sm:gap-16 border-b border-white/[0.06] pb-6">
+      {/* ─── Tab switcher ──────────────────────────────────────── */}
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 pt-12 sm:pt-16 lg:pt-20">
+        <div className="animate-fade-up flex items-center justify-center gap-8 sm:gap-12 lg:gap-16 border-b border-white/[0.06] pb-4 sm:pb-5">
           {MODELS.map((m, i) => (
             <button
               key={m.id}
               onClick={() => setActive(i)}
-              className="group flex flex-col items-center gap-1 pb-4 relative"
+              className="group flex flex-col items-center gap-1 pb-3 relative"
             >
               <span
-                className={`text-eyebrow transition-colors duration-300 ${
+                className={`text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium transition-colors duration-300 ${
                   active === i
                     ? "text-primary"
                     : "text-white/40 group-hover:text-white/70"
@@ -65,7 +65,7 @@ const VehiclesShowcase = memo(() => {
                 {m.tab}
               </span>
               <span
-                className={`font-display text-lg sm:text-xl uppercase transition-colors duration-300 ${
+                className={`font-display text-base sm:text-lg lg:text-xl uppercase transition-colors duration-300 ${
                   active === i
                     ? "text-white"
                     : "text-white/40 group-hover:text-white/70"
@@ -85,8 +85,8 @@ const VehiclesShowcase = memo(() => {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="relative mt-12 lg:mt-16">
+      {/* ─── Content ──────────────────────────────────────────── */}
+      <div className="relative mt-8 sm:mt-10 lg:mt-12">
         {MODELS.map((m, i) => {
           const isActive = active === i;
           return (
@@ -101,7 +101,7 @@ const VehiclesShowcase = memo(() => {
               <div className="grid lg:grid-cols-2 items-center gap-0">
                 {/* Image side */}
                 <div
-                  className={`relative h-[60vh] lg:h-[75vh] ${
+                  className={`relative h-[45vh] sm:h-[50vh] lg:h-[70vh] ${
                     i % 2 === 1 ? "lg:order-2" : ""
                   }`}
                 >
@@ -109,8 +109,15 @@ const VehiclesShowcase = memo(() => {
                     src={m.image}
                     alt={m.name}
                     label={m.name}
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
+                  {/* Subtle inner border — separates image from text without boxing it */}
+                  <div
+                    className={`absolute inset-0 pointer-events-none border-white/[0.08] ${
+                      i % 2 === 1 ? "lg:border-l" : "lg:border-r"
+                    }`}
+                  />
+                  {/* Edge fade toward text side */}
                   <div
                     className={`absolute inset-0 pointer-events-none ${
                       i % 2 === 1
@@ -122,30 +129,30 @@ const VehiclesShowcase = memo(() => {
 
                 {/* Text side */}
                 <div
-                  className={`flex items-center justify-center px-6 sm:px-10 lg:px-16 py-20 lg:py-24 ${
+                  className={`flex items-center justify-center px-5 sm:px-6 md:px-10 lg:px-16 py-12 sm:py-14 lg:py-20 ${
                     i % 2 === 1 ? "lg:order-1" : ""
                   }`}
                 >
                   <div className="max-w-lg w-full">
-                    <p className="text-eyebrow text-primary/80 mb-6">
+                    <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-medium text-primary/80 mb-4 sm:mb-6">
                       {m.tab} · {m.tabSub}
                     </p>
 
-                    <h2 className="font-display uppercase text-white text-[clamp(2rem,3.5vw,3rem)] leading-[1.02] tracking-[-0.01em] mb-8">
+                    <h2 className="font-display uppercase text-white text-[clamp(1.5rem,3vw,2.5rem)] leading-[1.02] tracking-[-0.01em] mb-5 sm:mb-6">
                       {m.name}
                     </h2>
 
-                    <p className="text-lead text-white/65 mb-12">
+                    <p className="text-lead text-white/65 mb-8 sm:mb-10">
                       {m.statement}
                     </p>
 
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-12 border-t border-white/[0.08] pt-8">
+                    <div className="grid grid-cols-2 gap-x-5 sm:gap-x-8 gap-y-5 sm:gap-y-6 mb-8 sm:mb-10 border-t border-white/[0.08] pt-6 sm:pt-8">
                       {m.specs.map((s) => (
                         <div key={s.label}>
-                          <p className="font-display tabular text-xl sm:text-2xl text-white leading-none">
+                          <p className="font-display tabular text-lg sm:text-xl lg:text-2xl text-white leading-none">
                             {s.value}
                           </p>
-                          <p className="text-eyebrow text-white/40 mt-3">
+                          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-white/40 mt-2 sm:mt-3">
                             {s.label}
                           </p>
                         </div>
@@ -169,6 +176,9 @@ const VehiclesShowcase = memo(() => {
           );
         })}
       </div>
+
+      {/* Bottom breathing room */}
+      <div className="h-10 sm:h-12 lg:h-14" />
     </section>
   );
 });
