@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Search, Trash2 } from "lucide-react";
-import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
-import useAsyncData from "../../hooks/useAsyncData";
 import { Input } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmModal from "../../components/ui/ConfirmModal";
@@ -15,7 +13,172 @@ import {
 } from "../../components/ui/AsyncStates";
 
 const PAGE_SIZE = 25;
-const LOAD_ERROR = "Couldn't load dealers. Please try again.";
+
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const MOCK_DEALERS = [
+  {
+    id: 1,
+    dealerCode: "DL01EV001",
+    name: "Shree Ram Motors",
+    mobileNo: "9876543210",
+    emailId: "shreeram@example.com",
+    gstin: "07AAAAA1234A1Z5",
+    address: "Karol Bagh, Main Market",
+    state: "Delhi",
+    dist: "New Delhi",
+    pinCode: "110005",
+    rtoOffice: "New Delhi RTO",
+    activationCode: "ACT-DL01-1234",
+    LOIreferenceId: "LOI-2024-001",
+    RQreferenceId: "RQ-2024-001",
+  },
+  {
+    id: 2,
+    dealerCode: "RJ02EV002",
+    name: "Rahul Auto Sales",
+    mobileNo: "9876543211",
+    emailId: "rahul@example.com",
+    gstin: "08BBBBB5678B1Z6",
+    address: "MI Road",
+    state: "Rajasthan",
+    dist: "Jaipur",
+    pinCode: "302001",
+    rtoOffice: "Jaipur RTO",
+    activationCode: "ACT-RJ02-5678",
+    LOIreferenceId: "LOI-2024-002",
+    RQreferenceId: "RQ-2024-002",
+  },
+  {
+    id: 3,
+    dealerCode: "UP03EV003",
+    name: "Green Energy Motors",
+    mobileNo: "9876543212",
+    emailId: "green@example.com",
+    gstin: "09CCCCC9012C1Z7",
+    address: "Hazratganj",
+    state: "Uttar Pradesh",
+    dist: "Lucknow",
+    pinCode: "226001",
+    rtoOffice: "Lucknow RTO",
+    activationCode: "ACT-UP03-9012",
+    LOIreferenceId: "LOI-2024-003",
+    RQreferenceId: "RQ-2024-003",
+  },
+  {
+    id: 4,
+    dealerCode: "HR04EV004",
+    name: "Metro EV Dealers",
+    mobileNo: "9876543213",
+    emailId: "metro@example.com",
+    gstin: "06DDDDD3456D1Z8",
+    address: "Sector 14",
+    state: "Haryana",
+    dist: "Gurgaon",
+    pinCode: "122001",
+    rtoOffice: "Gurgaon RTO",
+    activationCode: "ACT-HR04-3456",
+    LOIreferenceId: "LOI-2024-004",
+    RQreferenceId: "RQ-2024-004",
+  },
+  {
+    id: 5,
+    dealerCode: "MH05EV005",
+    name: "Vijay Sales Corporation",
+    mobileNo: "9876543214",
+    emailId: "vijay@example.com",
+    gstin: "27EEEEE7890E1Z9",
+    address: "Andheri West",
+    state: "Maharashtra",
+    dist: "Mumbai",
+    pinCode: "400058",
+    rtoOffice: "Mumbai RTO",
+    activationCode: "ACT-MH05-7890",
+    LOIreferenceId: "LOI-2024-005",
+    RQreferenceId: "RQ-2024-005",
+  },
+  {
+    id: 6,
+    dealerCode: "DL01EV006",
+    name: "Capital EV Motors",
+    mobileNo: "9876543215",
+    emailId: "capital@example.com",
+    gstin: "07FFFFF2345F1Z1",
+    address: "Lajpat Nagar",
+    state: "Delhi",
+    dist: "New Delhi",
+    pinCode: "110024",
+    rtoOffice: "New Delhi RTO",
+    activationCode: "ACT-DL01-2345",
+    LOIreferenceId: "LOI-2024-006",
+    RQreferenceId: "RQ-2024-006",
+  },
+  {
+    id: 7,
+    dealerCode: "RJ02EV007",
+    name: "Sunrise Motors",
+    mobileNo: "9876543216",
+    emailId: "sunrise@example.com",
+    gstin: "08GGGGG6789G1Z2",
+    address: "Civil Lines",
+    state: "Rajasthan",
+    dist: "Jaipur",
+    pinCode: "302006",
+    rtoOffice: "Jaipur RTO",
+    activationCode: "ACT-RJ02-6789",
+    LOIreferenceId: "LOI-2024-007",
+    RQreferenceId: "RQ-2024-007",
+  },
+  {
+    id: 8,
+    dealerCode: "UP03EV008",
+    name: "City Auto Hub",
+    mobileNo: "9876543217",
+    emailId: "city@example.com",
+    gstin: "09HHHHH0123H1Z3",
+    address: "Gomti Nagar",
+    state: "Uttar Pradesh",
+    dist: "Lucknow",
+    pinCode: "226010",
+    rtoOffice: "Lucknow RTO",
+    activationCode: "ACT-UP03-0123",
+    LOIreferenceId: "LOI-2024-008",
+    RQreferenceId: "RQ-2024-008",
+  },
+  {
+    id: 9,
+    dealerCode: "HR04EV009",
+    name: "Krishna EV Point",
+    mobileNo: "9876543218",
+    emailId: "krishna@example.com",
+    gstin: "06IIIII4567I1Z4",
+    address: "DLF Phase 2",
+    state: "Haryana",
+    dist: "Gurgaon",
+    pinCode: "122002",
+    rtoOffice: "Gurgaon RTO",
+    activationCode: "ACT-HR04-4567",
+    LOIreferenceId: "LOI-2024-009",
+    RQreferenceId: "RQ-2024-009",
+  },
+  {
+    id: 10,
+    dealerCode: "MH05EV010",
+    name: "Prime Auto Sales",
+    mobileNo: "9876543219",
+    emailId: "prime@example.com",
+    gstin: "27JJJJJ8901J1Z5",
+    address: "Bandra East",
+    state: "Maharashtra",
+    dist: "Mumbai",
+    pinCode: "400051",
+    rtoOffice: "Mumbai RTO",
+    activationCode: "ACT-MH05-8901",
+    LOIreferenceId: "LOI-2024-010",
+    RQreferenceId: "RQ-2024-010",
+  },
+];
 
 const DealerInfo = () => {
   const { role } = useAuth();
@@ -26,17 +189,21 @@ const DealerInfo = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [banner, setBanner] = useState(null);
+  const [data, setData] = useState(MOCK_DEALERS);
+  const loading = false;
+  const error = "";
 
-  const loader = useCallback(async () => {
-    const res = await api.get("/dealer/full");
-    return Array.isArray(res.data) ? res.data : [];
-  }, []);
-
-  const { data, error, loading, reload, setData } = useAsyncData(
-    ["dealers"],
-    loader,
-    LOAD_ERROR,
-  );
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED FOR MOCK
+  // ═══════════════════════════════════════════════════════════
+  // const loader = useCallback(async () => {
+  //   const res = await api.get("/dealer/full");
+  //   return Array.isArray(res.data) ? res.data : [];
+  // }, []);
+  //
+  // const { data, error, loading, reload, setData } = useAsyncData(
+  //   ["dealers"], loader, LOAD_ERROR,
+  // );
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -72,19 +239,15 @@ const DealerInfo = () => {
     if (!deleteTarget) return;
     setDeleting(true);
     setBanner(null);
-    try {
-      await api.delete(`/dealer/${encodeURIComponent(deleteTarget.id)}`);
+    setTimeout(() => {
       setData((list) => list.filter((d) => d.id !== deleteTarget.id));
       setBanner({
         type: "success",
         text: `Deleted dealer record for ${deleteTarget.name || deleteTarget.dealerCode}.`,
       });
-    } catch {
-      setBanner({ type: "error", text: "Delete failed. Please try again." });
-    } finally {
       setDeleting(false);
       setDeleteTarget(null);
-    }
+    }, 500);
   };
 
   const columns = useMemo(
@@ -144,6 +307,13 @@ const DealerInfo = () => {
 
   return (
     <section className="w-full">
+      <Link
+        to={ROLE_DASH[role] || "/"}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
           {ROLE_LABEL[role]}
@@ -162,7 +332,7 @@ const DealerInfo = () => {
       {loading ? (
         <LoadingCard />
       ) : error ? (
-        <ErrorCard message={error} onRetry={reload} />
+        <ErrorCard message={error} />
       ) : (
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">

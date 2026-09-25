@@ -1,70 +1,135 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
-import api from "../../api/client";
-import useAsyncData from "../../hooks/useAsyncData";
 import Card from "../../components/ui/Card";
 import { PrimaryButton, SecondaryButton } from "../../components/ui/Button";
 
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const INITIAL_REQUESTS = [
+  {
+    id: 1,
+    name: "Krishna EV Point",
+    emailId: "krishna@example.com",
+    mobileNo: "9876543210",
+    gstin: "27AAAAA1234A1Z5",
+    dist: "Kanpur",
+    state: "Uttar Pradesh",
+    pinCode: "208001",
+    rtoOffice: "Kanpur RTO",
+    address: "Civil Lines, Kanpur",
+    submittedAt: "2025-04-14T10:30:00",
+  },
+  {
+    id: 2,
+    name: "Sunrise Motors",
+    emailId: "sunrise@example.com",
+    mobileNo: "9876543211",
+    gstin: "27BBBBB5678B1Z6",
+    dist: "Nagpur",
+    state: "Maharashtra",
+    pinCode: "440001",
+    rtoOffice: "Nagpur RTO",
+    address: "Sitabuldi, Nagpur",
+    submittedAt: "2025-04-17T14:20:00",
+  },
+  {
+    id: 3,
+    name: "City Auto Hub",
+    emailId: "city@example.com",
+    mobileNo: "9876543212",
+    gstin: "23CCCCC9012C1Z7",
+    dist: "Indore",
+    state: "Madhya Pradesh",
+    pinCode: "452001",
+    rtoOffice: "Indore RTO",
+    address: "Vijay Nagar, Indore",
+    submittedAt: "2025-04-18T09:15:00",
+  },
+  {
+    id: 4,
+    name: "Prime EV Motors",
+    emailId: "prime@example.com",
+    mobileNo: "9876543213",
+    gstin: "24DDDDD3456D1Z8",
+    dist: "Ahmedabad",
+    state: "Gujarat",
+    pinCode: "380001",
+    rtoOffice: "Ahmedabad RTO",
+    address: "CG Road, Ahmedabad",
+    submittedAt: "2025-04-20T16:45:00",
+  },
+  {
+    id: 5,
+    name: "Green Wheels",
+    emailId: "green@example.com",
+    mobileNo: "9876543214",
+    gstin: "29EEEEE7890E1Z9",
+    dist: "Bangalore",
+    state: "Karnataka",
+    pinCode: "560001",
+    rtoOffice: "Bangalore RTO",
+    address: "MG Road, Bangalore",
+    submittedAt: "2025-04-22T11:00:00",
+  },
+];
+
 const PendingDealerRequests = () => {
+  const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [actioningId, setActioningId] = useState(null);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [banner, setBanner] = useState(null);
 
-  const fetchPending = useCallback(
-    async () => (await api.get("/dealer/pending")).data ?? [],
-    [],
-  );
-  const {
-    data,
-    error,
-    loading,
-    reload: loadRequests,
-    setData: setRequests,
-  } = useAsyncData(
-    ["pendingDealerRequests"],
-    fetchPending,
-    "Couldn't load pending requests. Please refresh and try again.",
-  );
-  const requests = loading ? null : (data ?? []);
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED
+  // ═══════════════════════════════════════════════════════════
+  // const fetchPending = useCallback(async () => (await api.get("/dealer/pending")).data ?? [], []);
+  // const { data, error, loading, reload, setData } = useAsyncData(["pendingDealerRequests"], fetchPending, LOAD_ERROR);
 
   const handleApprove = async (id) => {
     setActioningId(id);
     setBanner(null);
-    try {
-      await api.post(`/dealer/${id}/approve`);
+    setTimeout(() => {
       setRequests((list) => list.filter((r) => r.id !== id));
       setBanner({
         type: "success",
         text: "Approved — activation code emailed to the dealer.",
       });
-    } catch {
-      setBanner({ type: "error", text: "Approval failed. Please try again." });
-    } finally {
       setActioningId(null);
-    }
+    }, 600);
+    // API — COMMENTED
+    // await api.post(`/dealer/${id}/approve`);
   };
 
   const handleReject = async (id) => {
     setActioningId(id);
     setBanner(null);
-    try {
-      await api.post(`/dealer/${id}/reject`, { reason: rejectReason.trim() });
+    setTimeout(() => {
       setRequests((list) => list.filter((r) => r.id !== id));
       setBanner({ type: "success", text: "Request rejected." });
-    } catch {
-      setBanner({ type: "error", text: "Reject failed. Please try again." });
-    } finally {
       setActioningId(null);
       setRejectingId(null);
       setRejectReason("");
-    }
+    }, 600);
+    // API — COMMENTED
+    // await api.post(`/dealer/${id}/reject`, { reason: rejectReason.trim() });
   };
 
   return (
     <section className="w-full">
+      <Link
+        to="/adminDash"
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
+        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+          Admin
+        </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
           Pending Dealer Requests
         </h1>
@@ -91,23 +156,7 @@ const PendingDealerRequests = () => {
         </div>
       )}
 
-      {/* Loading */}
-      {requests === null && !error && (
-        <Card className="p-10 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
-        </Card>
-      )}
-
-      {/* Error */}
-      {error && (
-        <Card className="p-8 text-center">
-          <p className="text-red-500 text-sm mb-4">{error}</p>
-          <SecondaryButton onClick={loadRequests}>Retry</SecondaryButton>
-        </Card>
-      )}
-
-      {/* Empty */}
-      {requests !== null && !error && requests.length === 0 && (
+      {requests.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
             <Clock size={24} className="text-slate-400" />
@@ -119,10 +168,7 @@ const PendingDealerRequests = () => {
             New requests will appear here.
           </p>
         </Card>
-      )}
-
-      {/* List */}
-      {requests !== null && requests.length > 0 && (
+      ) : (
         <div className="space-y-4">
           {requests.map((req) => (
             <Card key={req.id} className="p-5 sm:p-6">

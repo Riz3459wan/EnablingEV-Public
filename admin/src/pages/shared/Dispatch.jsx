@@ -1,41 +1,113 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import {
-  ArrowLeft,
-  Search,
-  Eye,
-  Truck,
-  CheckCircle2,
-  Calendar,
-  MapPin,
-} from "lucide-react";
-import api from "../../api/client";
+import { ArrowLeft, Search, Eye, Truck, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
-import { useDealerInfo } from "../../auth/useDealerInfo";
 import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
-import useAsyncData from "../../hooks/useAsyncData";
 import { Input, Select } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import Modal from "../../components/ui/Modal";
 import Card from "../../components/ui/Card";
-import { ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
-import { formatINR, formatDate } from "../../features/quotation/calc";
+import { formatINR } from "../../features/quotation/calc";
 
 const PAGE_SIZE = 25;
-const MIN_DEALER_CODE_LENGTH = 7;
-const LOAD_ERROR = "Couldn't load dispatched vehicles. Please try again.";
 
-// ── Dispatch Detail Modal ──────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA (only Dispatched)
+// ═══════════════════════════════════════════════════════════
+const MOCK_DISPATCH = [
+  {
+    id: 1,
+    chassisNumber: "ME9EBCR123H268XYZ",
+    billNumber: "INV-0089",
+    dealerName: "Shree Ram Motors",
+    dealerCode: "DL01EV001",
+    dealerAddress: "Karol Bagh",
+    dealerDistrict: "New Delhi",
+    dealerState: "Delhi",
+    dealerPinCode: "110005",
+    vehicleType: "Rikshaw",
+    modelName: "F1",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    totalAmount: 245000,
+    status: "Dispatched",
+    dispatchedOn: "Apr 25, 2025",
+  },
+  {
+    id: 2,
+    chassisNumber: "ME9EBCR012H268GHI",
+    billNumber: "INV-0088",
+    dealerName: "Metro EV Dealers",
+    dealerCode: "HR04EV004",
+    dealerAddress: "Sector 14",
+    dealerDistrict: "Gurgaon",
+    dealerState: "Haryana",
+    dealerPinCode: "122001",
+    vehicleType: "Rikshaw",
+    modelName: "F2",
+    bodyTypeName: "SS",
+    colorName: "Red",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    totalAmount: 230000,
+    status: "Dispatched",
+    dispatchedOn: "Apr 24, 2025",
+  },
+  {
+    id: 3,
+    chassisNumber: "ME9EBCR345H268JKL",
+    billNumber: "INV-0087",
+    dealerName: "Vijay Sales Corp",
+    dealerCode: "MH05EV005",
+    dealerAddress: "Andheri West",
+    dealerDistrict: "Mumbai",
+    dealerState: "Maharashtra",
+    dealerPinCode: "400058",
+    vehicleType: "Rikshaw",
+    modelName: "F3",
+    bodyTypeName: "MS",
+    colorName: "Yellow",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    totalAmount: 375000,
+    status: "Dispatched",
+    dispatchedOn: "Apr 23, 2025",
+  },
+  {
+    id: 4,
+    chassisNumber: "ME9EBCR234H268STU",
+    billNumber: "INV-0086",
+    dealerName: "Green Energy Motors",
+    dealerCode: "UP03EV003",
+    dealerAddress: "Hazratganj",
+    dealerDistrict: "Lucknow",
+    dealerState: "Uttar Pradesh",
+    dealerPinCode: "226001",
+    vehicleType: "Rikshaw",
+    modelName: "F4",
+    bodyTypeName: "SS",
+    colorName: "White",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    totalAmount: 270000,
+    status: "Dispatched",
+    dispatchedOn: "Apr 22, 2025",
+  },
+];
+
 const DispatchDetailModal = ({ quotation, onClose }) => {
   if (!quotation) return null;
   const q = quotation;
 
-  const Row = ({ label, value, mono, icon: Icon }) => (
+  const Row = ({ label, value, mono }) => (
     <div className="flex justify-between py-2 border-b border-slate-100 last:border-0">
-      <span className="text-xs text-slate-500 flex items-center gap-1.5">
-        {Icon && <Icon size={12} className="text-slate-400" />}
-        {label}
-      </span>
+      <span className="text-xs text-slate-500">{label}</span>
       <span
         className={`text-sm text-slate-800 font-medium text-right ${mono ? "font-mono text-xs" : ""}`}
       >
@@ -51,7 +123,6 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
       title="Dispatch Details"
       maxWidth="max-w-2xl"
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-5 pb-5 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -61,7 +132,7 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
             </span>
           </div>
           <p className="text-lg font-bold text-slate-800 font-mono">
-            {q.chassisNumber || "—"}
+            {q.chassisNumber}
           </p>
         </div>
         <span className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">
@@ -69,7 +140,6 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
         </span>
       </div>
 
-      {/* Dispatch Summary Banner */}
       <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-4 mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0">
@@ -86,31 +156,17 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
         </div>
       </div>
 
-      {/* Bill & Date */}
       <div className="grid sm:grid-cols-2 gap-x-6 mb-5">
         <Row label="Bill Number" value={q.billNumber} mono />
-        <Row
-          label="Dispatched On"
-          value={
-            q.updatedAt
-              ? formatDate(q.updatedAt)
-              : q.createdAt
-                ? formatDate(q.createdAt)
-                : null
-          }
-          icon={Calendar}
-        />
+        <Row label="Dispatched On" value={q.dispatchedOn} />
       </div>
 
-      {/* Dealer Info */}
       <h3 className="text-sm font-bold text-slate-800 mb-2">
         Dealer Information
       </h3>
       <div className="grid sm:grid-cols-2 gap-x-6 mb-5">
         <Row label="Dealer Name" value={q.dealerName} />
         <Row label="Dealer Code" value={q.dealerCode} mono />
-        <Row label="GSTIN" value={q.dealerGstin} mono />
-        <Row label="Mobile" value={q.dealerMobile} />
         <div className="sm:col-span-2">
           <Row
             label="Delivery Address"
@@ -122,29 +178,21 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
             ]
               .filter(Boolean)
               .join(", ")}
-            icon={MapPin}
           />
         </div>
       </div>
 
-      {/* Vehicle Info */}
       <h3 className="text-sm font-bold text-slate-800 mb-2">Vehicle Details</h3>
       <div className="grid sm:grid-cols-2 gap-x-6 mb-5">
         <Row label="Vehicle Type" value={q.vehicleType} />
-        <Row label="Brand" value={q.brandPrefix} />
         <Row label="Model" value={q.modelName} />
         <Row label="Body Type" value={q.bodyTypeName} />
         <Row label="Color" value={q.colorName} />
         <Row label="Chassis Number" value={q.chassisNumber} mono />
-      </div>
-
-      {/* Battery */}
-      <h3 className="text-sm font-bold text-slate-800 mb-2">Battery</h3>
-      <div className="grid sm:grid-cols-2 gap-x-6 mb-5">
-        <Row label="Battery Type" value={q.batteryType} />
         <Row
-          label="Specs"
+          label="Battery"
           value={[
+            q.batteryType,
             q.batteryVolt && `${q.batteryVolt}V`,
             q.batteryAmpereHours && `${q.batteryAmpereHours}Ah`,
           ]
@@ -153,7 +201,6 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
         />
       </div>
 
-      {/* Amount */}
       <div className="bg-slate-50 rounded-lg p-4 flex justify-between items-center">
         <span className="text-sm font-bold text-slate-800">Invoice Amount</span>
         <span className="text-xl font-bold text-green-600">
@@ -173,36 +220,28 @@ const DispatchDetailModal = ({ quotation, onClose }) => {
   );
 };
 
-// ── Main Component ─────────────────────────────────────────
 const Dispatch = () => {
   const { role } = useAuth();
-  const { dealerCode } = useDealerInfo();
   const isDealer = role === "dealer";
-  const canLoad = !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [dealerFilter, setDealerFilter] = useState("all");
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [selectedItem, setSelectedItem] = useState(null);
+  const data = MOCK_DISPATCH;
+  const loading = false;
+  const error = "";
 
-  const loader = useCallback(async () => {
-    if (!canLoad) return [];
-    const params = {
-      status: "Dispatched",
-      ...(isDealer ? { dealerCode } : {}),
-    };
-    const res = await api.get("/QuotationTable", { params });
-    return Array.isArray(res.data) ? res.data : [];
-  }, [canLoad, isDealer, dealerCode]);
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED
+  // ═══════════════════════════════════════════════════════════
+  // const loader = useCallback(async () => {
+  //   const params = { status: "Dispatched", ...(isDealer ? { dealerCode } : {}) };
+  //   const res = await api.get("/QuotationTable", { params });
+  //   return Array.isArray(res.data) ? res.data : [];
+  // }, [canLoad, isDealer, dealerCode]);
 
-  const { data, error, loading, reload } = useAsyncData(
-    ["dispatch", isDealer ? dealerCode : "all"],
-    loader,
-    LOAD_ERROR,
-  );
-
-  // Unique dealers for filter (admin only)
   const dealerOptions = useMemo(() => {
     if (isDealer) return [];
     const map = new Map();
@@ -219,7 +258,6 @@ const Dispatch = () => {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (data ?? []).filter((q) => {
-      // Type filter
       if (typeFilter !== "all") {
         const vType = String(q.vehicleType || "").toLowerCase();
         if (
@@ -235,17 +273,8 @@ const Dispatch = () => {
         )
           return false;
       }
-
-      // Dealer filter (admin only)
-      if (
-        !isDealer &&
-        dealerFilter !== "all" &&
-        q.dealerCode !== dealerFilter
-      ) {
+      if (!isDealer && dealerFilter !== "all" && q.dealerCode !== dealerFilter)
         return false;
-      }
-
-      // Search
       if (!term) return true;
       return [
         q.chassisNumber,
@@ -262,23 +291,31 @@ const Dispatch = () => {
   const visible = filtered.slice(0, limit);
   const resetPaging = () => setLimit(PAGE_SIZE);
 
-  // ── Stats ──────────────────────────────────────────────
   const stats = useMemo(() => {
     const list = data ?? [];
-    const total = list.length;
-    const rikshaw = list.filter((q) => {
-      const v = String(q.vehicleType || "").toLowerCase();
-      return v.includes("rikshaw") || v.includes("rickshaw");
-    }).length;
-    const cargo = list.filter((q) => {
-      const v = String(q.vehicleType || "").toLowerCase();
-      return v.includes("cargo") || v.includes("loader");
-    }).length;
+    const rikshaw = list.filter(
+      (q) =>
+        String(q.vehicleType || "")
+          .toLowerCase()
+          .includes("rikshaw") ||
+        String(q.vehicleType || "")
+          .toLowerCase()
+          .includes("rickshaw"),
+    ).length;
+    const cargo = list.filter(
+      (q) =>
+        String(q.vehicleType || "")
+          .toLowerCase()
+          .includes("cargo") ||
+        String(q.vehicleType || "")
+          .toLowerCase()
+          .includes("loader"),
+    ).length;
     const totalValue = list.reduce(
       (sum, q) => sum + (Number(q.totalAmount) || 0),
       0,
     );
-    return { total, rikshaw, cargo, totalValue };
+    return { total: list.length, rikshaw, cargo, totalValue };
   }, [data]);
 
   const columns = useMemo(
@@ -358,7 +395,13 @@ const Dispatch = () => {
 
   return (
     <section className="w-full">
-      {/* Header */}
+      <Link
+        to={ROLE_DASH[role] || "/adminDash"}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
         <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-1">
           {ROLE_LABEL[role]} · Operations
@@ -373,7 +416,6 @@ const Dispatch = () => {
         </p>
       </div>
 
-      {/* Stats Cards */}
       {!loading && !error && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <Card className="p-4">
@@ -400,15 +442,12 @@ const Dispatch = () => {
         </div>
       )}
 
-      {!canLoad ? (
-        <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
-      ) : loading ? (
+      {loading ? (
         <LoadingCard />
       ) : error ? (
-        <ErrorCard message={error} onRetry={reload} />
+        <ErrorCard message={error} />
       ) : (
         <>
-          {/* Filters */}
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">
             <div className="relative w-full lg:max-w-sm">
               <Search
@@ -425,7 +464,6 @@ const Dispatch = () => {
                 className="!pl-10"
               />
             </div>
-
             <Select
               value={typeFilter}
               onChange={(e) => {
@@ -440,7 +478,6 @@ const Dispatch = () => {
                 </option>
               ))}
             </Select>
-
             {!isDealer && dealerOptions.length > 0 && (
               <Select
                 value={dealerFilter}
@@ -458,7 +495,6 @@ const Dispatch = () => {
                 ))}
               </Select>
             )}
-
             <p className="text-xs text-slate-500 lg:ml-auto">
               Showing {visible.length} of {filtered.length}
             </p>

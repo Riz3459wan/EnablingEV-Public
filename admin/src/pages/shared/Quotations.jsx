@@ -1,11 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Search, Eye, FileText } from "lucide-react";
-import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
-import { useDealerInfo } from "../../auth/useDealerInfo";
 import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
-import useAsyncData from "../../hooks/useAsyncData";
 import { Input, Select } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import Modal from "../../components/ui/Modal";
@@ -15,8 +12,212 @@ import { statusBadgeClass } from "../../features/quotation/constants";
 import { formatINR, gstBreakdown } from "../../features/quotation/calc";
 
 const PAGE_SIZE = 25;
-const MIN_DEALER_CODE_LENGTH = 7;
-const LOAD_ERROR = "Couldn't load quotations. Please try again.";
+
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const MOCK_QUOTATIONS = [
+  {
+    id: 1,
+    chassisNumber: "ME9EBCR123H268XYZ",
+    dealerName: "Shree Ram Motors",
+    dealerCode: "DL01EV001",
+    dealerGstin: "07AAAAA1234A1Z5",
+    dealerState: "Delhi",
+    dealerDistrict: "New Delhi",
+    dealerPinCode: "110005",
+    dealerAddress: "Karol Bagh",
+    vehicleType: "Rikshaw",
+    brandPrefix: "Jhat Pat Jio",
+    modelName: "F1",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 150000,
+    bodyTypePrice: 30000,
+    batteryPrice: 45000,
+    totalAmount: 245000,
+    status: "Dispatched",
+    billNumber: "INV-0089",
+  },
+  {
+    id: 2,
+    chassisNumber: "ME9EBCC456H268ABC",
+    dealerName: "Rahul Auto Sales",
+    dealerCode: "RJ02EV002",
+    dealerGstin: "08BBBBB5678B1Z6",
+    dealerState: "Rajasthan",
+    dealerDistrict: "Jaipur",
+    dealerPinCode: "302001",
+    dealerAddress: "MI Road",
+    vehicleType: "Cargo",
+    brandPrefix: "Halchal",
+    modelName: "LODER",
+    bodyTypeName: "NR",
+    colorName: "Green",
+    batteryType: "Lithium",
+    batteryVolt: 48,
+    batteryAmpereHours: 120,
+    modelPrice: 200000,
+    bodyTypePrice: 50000,
+    batteryPrice: 60000,
+    totalAmount: 310000,
+    status: "Under Billing",
+    billNumber: null,
+  },
+  {
+    id: 3,
+    chassisNumber: "ME9EBCC789H268DEF",
+    dealerName: "Green Energy Motors",
+    dealerCode: "UP03EV003",
+    dealerGstin: "09CCCCC9012C1Z7",
+    dealerState: "Uttar Pradesh",
+    dealerDistrict: "Lucknow",
+    dealerPinCode: "226001",
+    dealerAddress: "Hazratganj",
+    vehicleType: "Cargo",
+    brandPrefix: "Halchal",
+    modelName: "LODER",
+    bodyTypeName: "DS",
+    colorName: "White",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 300000,
+    bodyTypePrice: 60000,
+    batteryPrice: 90000,
+    totalAmount: 450000,
+    status: "Under Assembling",
+    billNumber: null,
+  },
+  {
+    id: 4,
+    chassisNumber: "ME9EBCR012H268GHI",
+    dealerName: "Metro EV Dealers",
+    dealerCode: "HR04EV004",
+    dealerGstin: "06DDDDD3456D1Z8",
+    dealerState: "Haryana",
+    dealerDistrict: "Gurgaon",
+    dealerPinCode: "122001",
+    dealerAddress: "Sector 14",
+    vehicleType: "Rikshaw",
+    brandPrefix: "Jhat Pat Jio",
+    modelName: "F2",
+    bodyTypeName: "SS",
+    colorName: "Red",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 140000,
+    bodyTypePrice: 45000,
+    batteryPrice: 45000,
+    totalAmount: 230000,
+    status: "Dispatched",
+    billNumber: "INV-0088",
+  },
+  {
+    id: 5,
+    chassisNumber: "ME9EBCR345H268JKL",
+    dealerName: "Vijay Sales Corp",
+    dealerCode: "MH05EV005",
+    dealerGstin: "27EEEEE7890E1Z9",
+    dealerState: "Maharashtra",
+    dealerDistrict: "Mumbai",
+    dealerPinCode: "400058",
+    dealerAddress: "Andheri West",
+    vehicleType: "Rikshaw",
+    brandPrefix: "Jhat Pat Jio",
+    modelName: "F3",
+    bodyTypeName: "MS",
+    colorName: "Yellow",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 240000,
+    bodyTypePrice: 45000,
+    batteryPrice: 90000,
+    totalAmount: 375000,
+    status: "Dispatched",
+    billNumber: "INV-0087",
+  },
+  {
+    id: 6,
+    chassisNumber: "ME9EBCR678H268MNO",
+    dealerName: "Shree Ram Motors",
+    dealerCode: "DL01EV001",
+    dealerGstin: "07AAAAA1234A1Z5",
+    dealerState: "Delhi",
+    dealerDistrict: "New Delhi",
+    dealerPinCode: "110005",
+    dealerAddress: "Karol Bagh",
+    vehicleType: "Rikshaw",
+    brandPrefix: "Jhat Pat Jio",
+    modelName: "F1",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 150000,
+    bodyTypePrice: 30000,
+    batteryPrice: 45000,
+    totalAmount: 245000,
+    status: "Under Billing",
+    billNumber: null,
+  },
+  {
+    id: 7,
+    chassisNumber: "ME9EBCC901H268PQR",
+    dealerName: "Rahul Auto Sales",
+    dealerCode: "RJ02EV002",
+    dealerGstin: "08BBBBB5678B1Z6",
+    dealerState: "Rajasthan",
+    dealerDistrict: "Jaipur",
+    dealerPinCode: "302001",
+    dealerAddress: "MI Road",
+    vehicleType: "Cargo",
+    brandPrefix: "Halchal",
+    modelName: "LODER",
+    bodyTypeName: "NR",
+    colorName: "Green",
+    batteryType: "Lithium",
+    batteryVolt: 48,
+    batteryAmpereHours: 120,
+    modelPrice: 200000,
+    bodyTypePrice: 50000,
+    batteryPrice: 60000,
+    totalAmount: 310000,
+    status: "Under Assembling",
+    billNumber: null,
+  },
+  {
+    id: 8,
+    chassisNumber: "ME9EBCR234H268STU",
+    dealerName: "Green Energy Motors",
+    dealerCode: "UP03EV003",
+    dealerGstin: "09CCCCC9012C1Z7",
+    dealerState: "Uttar Pradesh",
+    dealerDistrict: "Lucknow",
+    dealerPinCode: "226001",
+    dealerAddress: "Hazratganj",
+    vehicleType: "Rikshaw",
+    brandPrefix: "Jhat Pat Jio",
+    modelName: "F4",
+    bodyTypeName: "SS",
+    colorName: "White",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    modelPrice: 180000,
+    bodyTypePrice: 40000,
+    batteryPrice: 50000,
+    totalAmount: 270000,
+    status: "Dispatched",
+    billNumber: "INV-0086",
+  },
+];
 
 const StatusBadge = ({ status }) => (
   <span
@@ -135,34 +336,30 @@ const QuotationDetailModal = ({ quotation, onClose }) => {
 
 const Quotations = () => {
   const { role } = useAuth();
-  const { dealerCode } = useDealerInfo();
   const isDealer = role === "dealer";
-  const canLoad = !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const data = MOCK_QUOTATIONS;
+  const loading = false;
+  const error = "";
 
-  const loader = useCallback(async () => {
-    if (!canLoad) return [];
-    const params = isDealer ? { dealerCode } : undefined;
-    const res = await api.get("/QuotationTable", { params });
-    return Array.isArray(res.data) ? res.data : [];
-  }, [canLoad, isDealer, dealerCode]);
-
-  const { data, error, loading, reload } = useAsyncData(
-    ["quotations", isDealer ? dealerCode : "all"],
-    loader,
-    LOAD_ERROR,
-  );
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED
+  // ═══════════════════════════════════════════════════════════
+  // const loader = useCallback(async () => {
+  //   const params = isDealer ? { dealerCode } : undefined;
+  //   const res = await api.get("/QuotationTable", { params });
+  //   return Array.isArray(res.data) ? res.data : [];
+  // }, [canLoad, isDealer, dealerCode]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (data ?? []).filter((q) => {
       if (statusFilter !== "all" && q.status !== statusFilter) return false;
-
       if (typeFilter !== "all") {
         const vType = String(q.vehicleType || "").toLowerCase();
         if (
@@ -178,7 +375,6 @@ const Quotations = () => {
         )
           return false;
       }
-
       if (!term) return true;
       return [
         q.chassisNumber,
@@ -198,17 +394,15 @@ const Quotations = () => {
 
   const stats = useMemo(() => {
     const list = data ?? [];
-    const total = list.length;
-    const dispatched = list.filter((q) => q.status === "Dispatched").length;
-    const billing = list.filter((q) => q.status === "Under Billing").length;
-    const assembling = list.filter(
-      (q) => q.status === "Under Assembling",
-    ).length;
-    const totalValue = list.reduce(
-      (sum, q) => sum + (Number(q.totalAmount) || 0),
-      0,
-    );
-    return { total, dispatched, billing, assembling, totalValue };
+    return {
+      total: list.length,
+      dispatched: list.filter((q) => q.status === "Dispatched").length,
+      billing: list.filter((q) => q.status === "Under Billing").length,
+      totalValue: list.reduce(
+        (sum, q) => sum + (Number(q.totalAmount) || 0),
+        0,
+      ),
+    };
   }, [data]);
 
   const columns = useMemo(
@@ -287,6 +481,13 @@ const Quotations = () => {
 
   return (
     <section className="w-full">
+      <Link
+        to={ROLE_DASH[role] || "/adminDash"}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
           {ROLE_LABEL[role]} · Operations
@@ -326,12 +527,10 @@ const Quotations = () => {
         </div>
       )}
 
-      {!canLoad ? (
-        <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
-      ) : loading ? (
+      {loading ? (
         <LoadingCard />
       ) : error ? (
-        <ErrorCard message={error} onRetry={reload} />
+        <ErrorCard message={error} />
       ) : (
         <>
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">

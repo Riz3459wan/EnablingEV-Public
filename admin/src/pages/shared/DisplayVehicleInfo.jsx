@@ -1,36 +1,176 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Search } from "lucide-react";
-import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
-import { useDealerInfo } from "../../auth/useDealerInfo";
 import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
-import useAsyncData from "../../hooks/useAsyncData";
 import { matchesVehicleType } from "../../utils/vehicleType";
 import { Input, Select } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import { ErrorCard, LoadingCard } from "../../components/ui/AsyncStates";
 
 const PAGE_SIZE = 25;
-const MIN_DEALER_CODE_LENGTH = 7;
-const LOAD_ERROR = "Couldn't load vehicles. Please try again.";
+
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const MOCK_VEHICLES = [
+  {
+    id: 1,
+    chassisNumber: "ME9EBCR123H268XYZ",
+    dealerName: "Shree Ram Motors",
+    dealerCode: "DL01EV001",
+    vehicleType: "Rikshaw",
+    modelName: "F1",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: false,
+  },
+  {
+    id: 2,
+    chassisNumber: "ME9EBCC456H268ABC",
+    dealerName: "Rahul Auto Sales",
+    dealerCode: "RJ02EV002",
+    vehicleType: "Cargo",
+    modelName: "LODER",
+    bodyTypeName: "NR",
+    colorName: "Green",
+    batteryType: "Lithium",
+    batteryVolt: 48,
+    batteryAmpereHours: 120,
+    specs: "48V / 120Ah",
+    isUsed: true,
+  },
+  {
+    id: 3,
+    chassisNumber: "ME9EBCC789H268DEF",
+    dealerName: "Green Energy Motors",
+    dealerCode: "UP03EV003",
+    vehicleType: "Cargo",
+    modelName: "LODER",
+    bodyTypeName: "DS",
+    colorName: "White",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: false,
+  },
+  {
+    id: 4,
+    chassisNumber: "ME9EBCR012H268GHI",
+    dealerName: "Metro EV Dealers",
+    dealerCode: "HR04EV004",
+    vehicleType: "Rikshaw",
+    modelName: "F2",
+    bodyTypeName: "SS",
+    colorName: "Red",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: false,
+  },
+  {
+    id: 5,
+    chassisNumber: "ME9EBCR345H268JKL",
+    dealerName: "Vijay Sales Corp",
+    dealerCode: "MH05EV005",
+    vehicleType: "Rikshaw",
+    modelName: "F3",
+    bodyTypeName: "MS",
+    colorName: "Yellow",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: true,
+  },
+  {
+    id: 6,
+    chassisNumber: "ME9EBCR678H268MNO",
+    dealerName: "Shree Ram Motors",
+    dealerCode: "DL01EV001",
+    vehicleType: "Rikshaw",
+    modelName: "F1",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: false,
+  },
+  {
+    id: 7,
+    chassisNumber: "ME9EBCC901H268PQR",
+    dealerName: "Rahul Auto Sales",
+    dealerCode: "RJ02EV002",
+    vehicleType: "Cargo",
+    modelName: "LODER",
+    bodyTypeName: "NR",
+    colorName: "Green",
+    batteryType: "Lithium",
+    batteryVolt: 48,
+    batteryAmpereHours: 120,
+    specs: "48V / 120Ah",
+    isUsed: false,
+  },
+  {
+    id: 8,
+    chassisNumber: "ME9EBCR234H268STU",
+    dealerName: "Green Energy Motors",
+    dealerCode: "UP03EV003",
+    vehicleType: "Rikshaw",
+    modelName: "F4",
+    bodyTypeName: "SS",
+    colorName: "White",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: true,
+  },
+  {
+    id: 9,
+    chassisNumber: "ME9EBCR567H268VWX",
+    dealerName: "Metro EV Dealers",
+    dealerCode: "HR04EV004",
+    vehicleType: "Rikshaw",
+    modelName: "DELUX",
+    bodyTypeName: "MS",
+    colorName: "Blue",
+    batteryType: "Lithium",
+    batteryVolt: 60,
+    batteryAmpereHours: 100,
+    specs: "60V / 100Ah",
+    isUsed: false,
+  },
+  {
+    id: 10,
+    chassisNumber: "ME9EBCC890H268YZA",
+    dealerName: "Vijay Sales Corp",
+    dealerCode: "MH05EV005",
+    vehicleType: "Cargo",
+    modelName: "LODER",
+    bodyTypeName: "DS",
+    colorName: "Red",
+    batteryType: "Lithium",
+    batteryVolt: 48,
+    batteryAmpereHours: 120,
+    specs: "48V / 120Ah",
+    isUsed: false,
+  },
+];
 
 const TYPE_OPTIONS = [
   ["all", "All"],
   ["rikshaw", "Rikshaw"],
   ["cargo", "Cargo / Loader"],
 ];
-
-const batterySpecs = (q) =>
-  [
-    q.batteryVolt ? `${q.batteryVolt}V` : "",
-    q.batteryAmpereHours ? `${q.batteryAmpereHours}Ah` : "",
-  ]
-    .filter(Boolean)
-    .join(" / ") || "—";
-
-const dealerNameOf = (q) =>
-  q.dealerName || q.dealerNameDealerCode?.split("|")[0]?.trim() || "";
 
 const UsedBadge = ({ value }) => {
   if (value === null) return <span className="text-slate-400">—</span>;
@@ -47,54 +187,27 @@ const UsedBadge = ({ value }) => {
 
 const DisplayVehicleInfo = () => {
   const { role } = useAuth();
-  const { dealerCode } = useDealerInfo();
   const isDealer = role === "dealer";
-  const canLoad = !isDealer || dealerCode.length >= MIN_DEALER_CODE_LENGTH;
 
   const [search, setSearch] = useState("");
   const [type, setType] = useState("all");
   const [dealerFilter, setDealerFilter] = useState("all");
   const [limit, setLimit] = useState(PAGE_SIZE);
+  const data = MOCK_VEHICLES;
+  const loading = false;
+  const error = "";
 
-  const loader = useCallback(async () => {
-    if (!canLoad) return [];
-    const params = {
-      status: "Dispatched",
-      ...(isDealer ? { dealerCode } : {}),
-    };
-    const [quotes, vehicles] = await Promise.all([
-      api.get("/QuotationTable", { params }),
-      api
-        .get("/VehicleTable")
-        .then((r) => r.data)
-        .catch(() => null),
-    ]);
-    const usedByChassis = Array.isArray(vehicles)
-      ? new Map(
-          vehicles
-            .filter((v) => v.chassisNumber)
-            .map((v) => [v.chassisNumber, v.isUsed === true]),
-        )
-      : null;
-    const list = Array.isArray(quotes.data) ? quotes.data : [];
-    return list.map((q) => ({
-      ...q,
-      model: q.modelName || q.model,
-      bodyType: q.bodyTypeName || q.bodyType,
-      color: q.colorName || q.color,
-      specs: batterySpecs(q),
-      dealerLabel: dealerNameOf(q),
-      isUsed: usedByChassis
-        ? usedByChassis.get(q.chassisNumber) === true
-        : null,
-    }));
-  }, [canLoad, isDealer, dealerCode]);
-
-  const { data, error, loading, reload } = useAsyncData(
-    ["displayVehicles", isDealer ? dealerCode : "all"],
-    loader,
-    LOAD_ERROR,
-  );
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED
+  // ═══════════════════════════════════════════════════════════
+  // const loader = useCallback(async () => {
+  //   const params = { status: "Dispatched", ...(isDealer ? { dealerCode } : {}) };
+  //   const [quotes, vehicles] = await Promise.all([
+  //     api.get("/QuotationTable", { params }),
+  //     api.get("/VehicleTable").then((r) => r.data).catch(() => null),
+  //   ]);
+  //   ...
+  // }, [canLoad, isDealer, dealerCode]);
 
   const dealerOptions = useMemo(() => {
     if (isDealer) return [];
@@ -103,7 +216,7 @@ const DisplayVehicleInfo = () => {
       if (q.dealerCode && !map.has(q.dealerCode)) {
         map.set(
           q.dealerCode,
-          `${q.dealerLabel || "Unknown Dealer"} (${q.dealerCode})`,
+          `${q.dealerName || "Unknown Dealer"} (${q.dealerCode})`,
         );
       }
     });
@@ -116,34 +229,25 @@ const DisplayVehicleInfo = () => {
     const term = search.trim().toLowerCase();
     return (data ?? []).filter((q) => {
       if (!matchesVehicleType(q, type)) return false;
-      if (
-        !isDealer &&
-        dealerFilter !== "all" &&
-        q.dealerCode !== dealerFilter
-      ) {
+      if (!isDealer && dealerFilter !== "all" && q.dealerCode !== dealerFilter)
         return false;
-      }
       if (!term) return true;
       return [
-        q.dealerLabel,
+        q.dealerName,
         q.dealerCode,
         q.chassisNumber,
         q.vehicleType,
-        q.model,
-        q.bodyType,
-        q.color,
+        q.modelName,
+        q.bodyTypeName,
+        q.colorName,
         q.batteryType,
-        q.batteryVolt,
-        q.batteryCompany,
-        q.batteryAH,
-        q.batteryWarranty,
-        q.charger,
         q.isUsed === null ? "" : q.isUsed ? "Yes" : "No",
       ].some((field) => field?.toString().toLowerCase().includes(term));
     });
   }, [data, search, type, dealerFilter, isDealer]);
 
   const visible = filtered.slice(0, limit);
+  const resetPaging = () => setLimit(PAGE_SIZE);
 
   const columns = useMemo(
     () => [
@@ -156,11 +260,11 @@ const DisplayVehicleInfo = () => {
         ? []
         : [
             {
-              key: "dealerLabel",
+              key: "dealerName",
               label: "Dealer",
               render: (row) => (
                 <span>
-                  {row.dealerLabel || "—"}
+                  {row.dealerName || "—"}
                   {row.dealerCode && (
                     <span className="block text-xs text-slate-500">
                       {row.dealerCode}
@@ -171,9 +275,9 @@ const DisplayVehicleInfo = () => {
             },
           ]),
       { key: "vehicleType", label: "Vehicle Type" },
-      { key: "model", label: "Model" },
-      { key: "bodyType", label: "Body Type" },
-      { key: "color", label: "Color" },
+      { key: "modelName", label: "Model" },
+      { key: "bodyTypeName", label: "Body Type" },
+      { key: "colorName", label: "Color" },
       { key: "batteryType", label: "Battery Type" },
       { key: "specs", label: "Battery Specs" },
       {
@@ -185,10 +289,15 @@ const DisplayVehicleInfo = () => {
     [isDealer],
   );
 
-  const resetPaging = () => setLimit(PAGE_SIZE);
-
   return (
     <section className="w-full">
+      <Link
+        to={ROLE_DASH[role] || "/"}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
           {ROLE_LABEL[role]}
@@ -203,12 +312,10 @@ const DisplayVehicleInfo = () => {
         </p>
       </div>
 
-      {!canLoad ? (
-        <ErrorCard message="Dealer code not found for this session. Please log out and sign in again." />
-      ) : loading ? (
+      {loading ? (
         <LoadingCard />
       ) : error ? (
-        <ErrorCard message={error} onRetry={reload} />
+        <ErrorCard message={error} />
       ) : (
         <>
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">

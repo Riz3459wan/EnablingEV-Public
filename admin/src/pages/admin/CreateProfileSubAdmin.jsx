@@ -116,7 +116,14 @@ const CreateProfileSubAdmin = () => {
     setSubmitting(true);
     setSubmitError("");
     try {
-      await api.post("/CreateProfile", formData);
+      // ═══════════════════════════════════════════════════════
+      //  API — COMMENTED FOR MOCK
+      // ═══════════════════════════════════════════════════════
+      // await api.post("/CreateProfile", formData);
+
+      // Mock: simulate API delay
+      await new Promise((r) => setTimeout(r, 800));
+
       setSuccess(true);
       setFormData(initialData);
     } catch (err) {

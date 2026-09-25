@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Search, Trash2, Eye, EyeOff } from "lucide-react";
-import api from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { ROLE_DASH, ROLE_LABEL } from "../../auth/roleConfig";
-import useAsyncData from "../../hooks/useAsyncData";
 import { Input } from "../../components/ui/Field";
 import DataTable from "../../components/ui/DataTable";
 import ConfirmModal from "../../components/ui/ConfirmModal";
@@ -15,7 +13,116 @@ import {
 } from "../../components/ui/AsyncStates";
 
 const PAGE_SIZE = 25;
-const LOAD_ERROR = "Couldn't load sub-admins. Please try again.";
+
+// ═══════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const MOCK_SUBADMINS = [
+  {
+    id: 1,
+    fullName: "Rakesh Kumar",
+    mobileNumber: "9876543210",
+    email: "rakesh@example.com",
+    address: "Karol Bagh",
+    city: "New Delhi",
+    district: "New Delhi",
+    pincode: "110005",
+    state: "Delhi",
+    userId: "rakesh01",
+    password: "pass1234",
+  },
+  {
+    id: 2,
+    fullName: "Priya Sharma",
+    mobileNumber: "9876543211",
+    email: "priya@example.com",
+    address: "MI Road",
+    city: "Jaipur",
+    district: "Jaipur",
+    pincode: "302001",
+    state: "Rajasthan",
+    userId: "priya02",
+    password: "pass5678",
+  },
+  {
+    id: 3,
+    fullName: "Amit Singh",
+    mobileNumber: "9876543212",
+    email: "amit@example.com",
+    address: "Hazratganj",
+    city: "Lucknow",
+    district: "Lucknow",
+    pincode: "226001",
+    state: "Uttar Pradesh",
+    userId: "amit03",
+    password: "pass9012",
+  },
+  {
+    id: 4,
+    fullName: "Suresh Yadav",
+    mobileNumber: "9876543213",
+    email: "suresh@example.com",
+    address: "Sector 14",
+    city: "Gurgaon",
+    district: "Gurgaon",
+    pincode: "122001",
+    state: "Haryana",
+    userId: "suresh04",
+    password: "pass3456",
+  },
+  {
+    id: 5,
+    fullName: "Neha Gupta",
+    mobileNumber: "9876543214",
+    email: "neha@example.com",
+    address: "Andheri West",
+    city: "Mumbai",
+    district: "Mumbai",
+    pincode: "400058",
+    state: "Maharashtra",
+    userId: "neha05",
+    password: "pass7890",
+  },
+  {
+    id: 6,
+    fullName: "Vijay Patel",
+    mobileNumber: "9876543215",
+    email: "vijay@example.com",
+    address: "Lajpat Nagar",
+    city: "New Delhi",
+    district: "New Delhi",
+    pincode: "110024",
+    state: "Delhi",
+    userId: "vijay06",
+    password: "pass2345",
+  },
+  {
+    id: 7,
+    fullName: "Anita Verma",
+    mobileNumber: "9876543216",
+    email: "anita@example.com",
+    address: "Civil Lines",
+    city: "Jaipur",
+    district: "Jaipur",
+    pincode: "302006",
+    state: "Rajasthan",
+    userId: "anita07",
+    password: "pass6789",
+  },
+  {
+    id: 8,
+    fullName: "Rajesh Kumar",
+    mobileNumber: "9876543217",
+    email: "rajesh@example.com",
+    address: "Gomti Nagar",
+    city: "Lucknow",
+    district: "Lucknow",
+    pincode: "226010",
+    state: "Uttar Pradesh",
+    userId: "rajesh08",
+    password: "pass0123",
+  },
+];
 
 const PasswordCell = ({ value }) => {
   const [visible, setVisible] = useState(false);
@@ -44,17 +151,17 @@ const SubAdminInfo = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [banner, setBanner] = useState(null);
+  const [data, setData] = useState(MOCK_SUBADMINS);
+  const loading = false;
+  const error = "";
 
-  const loader = useCallback(async () => {
-    const res = await api.get("/CreateProfile/all");
-    return Array.isArray(res.data) ? res.data : [];
-  }, []);
-
-  const { data, error, loading, reload, setData } = useAsyncData(
-    ["subAdmins"],
-    loader,
-    LOAD_ERROR,
-  );
+  // ═══════════════════════════════════════════════════════════
+  //  API — COMMENTED
+  // ═══════════════════════════════════════════════════════════
+  // const loader = useCallback(async () => {
+  //   const res = await api.get("/CreateProfile/all");
+  //   return Array.isArray(res.data) ? res.data : [];
+  // }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -86,19 +193,15 @@ const SubAdminInfo = () => {
     if (!deleteTarget) return;
     setDeleting(true);
     setBanner(null);
-    try {
-      await api.delete(`/CreateProfile/${encodeURIComponent(deleteTarget.id)}`);
+    setTimeout(() => {
       setData((list) => list.filter((s) => s.id !== deleteTarget.id));
       setBanner({
         type: "success",
         text: `Deleted sub-admin profile for ${deleteTarget.fullName || deleteTarget.userId}.`,
       });
-    } catch {
-      setBanner({ type: "error", text: "Delete failed. Please try again." });
-    } finally {
       setDeleting(false);
       setDeleteTarget(null);
-    }
+    }, 500);
   };
 
   const columns = useMemo(
@@ -140,6 +243,13 @@ const SubAdminInfo = () => {
 
   return (
     <section className="w-full">
+      <Link
+        to={ROLE_DASH[role] || "/"}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-4"
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
+
       <div className="mb-6">
         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
           {ROLE_LABEL[role]}
@@ -157,7 +267,7 @@ const SubAdminInfo = () => {
       {loading ? (
         <LoadingCard />
       ) : error ? (
-        <ErrorCard message={error} onRetry={reload} />
+        <ErrorCard message={error} />
       ) : (
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
